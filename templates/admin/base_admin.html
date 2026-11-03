@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard | Shubhashtu Fashion{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="/static/images/logo.jpg">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            DEFAULT: '#c59b27',
+                            light: '#dfb746',
+                            dark: '#9e7817'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body class="bg-gray-50 text-gray-900 flex h-screen overflow-hidden">
+
+    <!-- Admin Sidebar -->
+    <aside class="w-64 bg-gray-950 text-gray-300 flex flex-col flex-shrink-0 border-r border-gold/30">
+        <!-- Brand Header -->
+        <div class="p-5 border-b border-gray-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="/static/images/logo.jpg" alt="Logo" class="w-9 h-9 rounded-full border border-gold">
+                <div>
+                    <span class="font-serif font-bold text-sm text-white tracking-wider uppercase block">Shubhashtu</span>
+                    <span class="text-[9px] uppercase tracking-widest text-gold-light font-semibold">Store Manager</span>
+                </div>
+            </div>
+            <a href="/" target="_blank" class="text-xs text-gray-400 hover:text-gold" title="View Live Store">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-xs font-medium">
+            <a href="/admin" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'dashboard' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-gauge-high w-4"></i> Overview
+            </a>
+
+            <div class="pt-3 pb-1 text-[10px] uppercase font-bold tracking-wider text-gray-500 px-3">Catalogue</div>
+            <a href="/admin/products" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'products' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-shirt w-4"></i> Products
+            </a>
+            <a href="/admin/products/new" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'product_new' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-plus w-4"></i> Add New Product
+            </a>
+            <a href="/admin/categories" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'categories' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-layer-group w-4"></i> Categories
+            </a>
+
+            <div class="pt-3 pb-1 text-[10px] uppercase font-bold tracking-wider text-gray-500 px-3">Sales & Customers</div>
+            <a href="/admin/orders" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'orders' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-boxes-packing w-4"></i> Customer Orders
+            </a>
+            <a href="/admin/customers" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'customers' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-users w-4"></i> Customers
+            </a>
+            <a href="/admin/coupons" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'coupons' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-ticket w-4"></i> Coupons & Offers
+            </a>
+            <a href="/admin/reviews" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'reviews' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-star w-4"></i> Customer Reviews
+            </a>
+
+            <div class="pt-3 pb-1 text-[10px] uppercase font-bold tracking-wider text-gray-500 px-3">Configuration</div>
+            <a href="/admin/shipping" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'shipping' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-truck-fast w-4"></i> Delivery Charges & Shiprocket
+            </a>
+            <a href="/admin/payments" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'payments' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-credit-card w-4"></i> Razorpay & COD Payments
+            </a>
+            <a href="/admin/settings" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 hover:text-white transition {% if active_page == 'settings' %}bg-gold text-white font-bold shadow-md{% endif %}">
+                <i class="fa-solid fa-sliders w-4"></i> Store Settings
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="p-4 border-t border-gray-800 flex items-center justify-between text-xs">
+            <div class="truncate">
+                <p class="font-bold text-white truncate">{{ current_user.full_name|default('Store Admin') }}</p>
+                <p class="text-[10px] text-gray-500 truncate">{{ current_user.email }}</p>
+            </div>
+            <a href="/logout" class="text-rose-400 hover:text-rose-300 ml-2" title="Sign Out">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Admin Content Area -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Admin Top Navigation Bar -->
+        <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between flex-shrink-0">
+            <div>
+                <h1 class="font-serif text-xl font-bold text-gray-900">{% block header_title %}Dashboard{% endblock %}</h1>
+                <p class="text-xs text-gray-500">Manage your Shubhashtu Fashion boutique, orders, and customer journey</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="/admin/products/new" class="btn-luxury-gold px-4 py-2 rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-plus"></i> Add Product
+                </a>
+                <a href="/" target="_blank" class="px-4 py-2 rounded-xl text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition">
+                    <i class="fa-solid fa-store mr-1 text-gold"></i> Live Store
+                </a>
+            </div>
+        </header>
+
+        <!-- Scrollable Main View -->
+        <main class="flex-1 overflow-y-auto p-8">
+            {% block admin_content %}{% endblock %}
+        </main>
+
+    </div>
+
+    <!-- Admin JS Helper -->
+    <script src="/static/js/admin.js"></script>
+    {% block admin_scripts %}{% endblock %}
+</body>
+</html>
+

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Store Policies | Shubhashtu Fashion{% endblock %}
+
+{% block content %}
+<div class="bg-rose-50/50 py-8 border-b border-rose-100">
+    <div class="container mx-auto px-4 text-center">
+        <span class="text-xs uppercase tracking-widest text-gold font-bold">Customer Transparency</span>
+        <h1 class="font-serif text-3xl font-bold text-gray-900 mt-1">Policies & Terms</h1>
+        <p class="text-xs text-gray-500 mt-1">Clear, customer-centric terms designed to give you complete peace of mind while shopping.</p>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-12">
+    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-3xl border border-rose-100 shadow-sm space-y-12">
+        
+        <!-- Shipping Policy -->
+        <section id="shipping" class="space-y-4">
+            <h2 class="font-serif text-2xl font-bold text-gray-900 flex items-center gap-2 border-b border-rose-100 pb-3">
+                <i class="fa-solid fa-truck-fast text-gold text-lg"></i> Shipping & Delivery Policy
+            </h2>
+            <div class="text-xs text-gray-600 leading-relaxed space-y-3 font-light">
+                <p>• <strong>Serviceable Locations:</strong> We deliver to over 19,000+ PIN codes across India through premier courier partners including BlueDart, Delhivery, DTDC, and India Post.</p>
+                <p>• <strong>Free Delivery:</strong> All prepaid and COD orders with a net cart value of <strong>₹999 and above</strong> receive complimentary standard shipping.</p>
+                <p>• <strong>Standard Delivery Charge:</strong> A nominal delivery fee of ₹70 is applicable on orders below ₹999.</p>
+                <p>• <strong>Dispatch Timelines:</strong> In-stock jewelry and ready pieces are dispatched within 24 to 48 hours. Individually hand-painted t-shirts require 2 business days for meticulous drying and packaging.</p>
+                <p>• <strong>Estimated Delivery Duration:</strong>
+                    <br>&nbsp;&nbsp;- Metro Cities (Bengaluru, Mumbai, Delhi, Hyderabad, Chennai, Kolkata): 2 to 4 business days.
+                    <br>&nbsp;&nbsp;- Tier-1 & State Capitals: 3 to 5 business days.
+                    <br>&nbsp;&nbsp;- Rest of India: 4 to 6 business days.
+                </p>
+                <p>• <strong>Tracking:</strong> Real-time AWB courier tracking links are provided via SMS, WhatsApp, and the <a href="/track-order" class="text-gold font-semibold underline">Track Order</a> portal.</p>
+            </div>
+        </section>
+
+        <!-- Return & Refund Policy -->
+        <section id="returns" class="space-y-4">
+            <h2 class="font-serif text-2xl font-bold text-gray-900 flex items-center gap-2 border-b border-rose-100 pb-3">
+                <i class="fa-solid fa-rotate-left text-gold text-lg"></i> Return & Refund Policy
+            </h2>
+            <div class="text-xs text-gray-600 leading-relaxed space-y-3 font-light">
+                <p>• <strong>7-Day Return & Exchange Window:</strong> You may initiate a return or size exchange request within 7 calendar days from the date of package delivery.</p>
+                <p>• <strong>Eligibility Criteria:</strong> Items must be in their original condition, unworn, unwashed, with all original tags attached, and in the protective Shubhashtu satin/velvet pouch.</p>
+                <p>• <strong>Return Pickup:</strong> We arrange reverse door-step pickup across all serviceable locations in India free of charge for size exchanges.</p>
+                <p>• <strong>Refund Processing:</strong> Once the returned parcel passes inspection at our studio:
+                    <br>&nbsp;&nbsp;- <em>Prepaid Orders:</em> Refund is automatically credited back to your original payment source (UPI/Card/Bank) within 3-5 business days.
+                    <br>&nbsp;&nbsp;- <em>Cash on Delivery:</em> Refund is transferred to your provided UPI ID or bank account via NEFT within 2 business days.
+                </p>
+            </div>
+        </section>
+
+        <!-- Privacy Policy -->
+        <section id="privacy" class="space-y-4">
+            <h2 class="font-serif text-2xl font-bold text-gray-900 flex items-center gap-2 border-b border-rose-100 pb-3">
+                <i class="fa-solid fa-shield-halved text-gold text-lg"></i> Privacy Policy
+            </h2>
+            <div class="text-xs text-gray-600 leading-relaxed space-y-3 font-light">
+                <p>• Shubhashtu Fashion complies with the Information Technology Act, 2000 and the Digital Personal Data Protection Act (DPDPA).</p>
+                <p>• We collect only the information necessary to fulfill your orders: Full Name, Delivery Address, Contact Number, and Email.</p>
+                <p>• <strong>Financial Security:</strong> We do NOT store or access your credit card numbers, debit card PINs, CVVs, or NetBanking passwords. All payment transactions are securely handled through PCI-DSS Level 1 compliant Razorpay gateway.</p>
+                <p>• We never sell, rent, or trade your personal data to third-party marketing companies.</p>
+            </div>
+        </section>
+
+        <!-- Terms of Service -->
+        <section id="terms" class="space-y-4">
+            <h2 class="font-serif text-2xl font-bold text-gray-900 flex items-center gap-2 border-b border-rose-100 pb-3">
+                <i class="fa-solid fa-file-contract text-gold text-lg"></i> Terms of Service
+            </h2>
+            <div class="text-xs text-gray-600 leading-relaxed space-y-3 font-light">
+                <p>• By accessing or purchasing from Shubhashtu Fashion, you agree to be bound by these Terms of Service.</p>
+                <p>• All content, imagery, logos, motifs, and hand-painted designs are proprietary intellectual property of Shubhashtu Fashion Private Limited.</p>
+                <p>• Any disputes arising out of purchases shall be subject to the exclusive jurisdiction of the courts in Bengaluru, Karnataka, India.</p>
+            </div>
+        </section>
+
+    </div>
+</div>
+{% endblock %}
+

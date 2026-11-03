@@ -1,0 +1,153 @@
+{% extends "admin/base_admin.html" %}
+
+{% block header_title %}{{ 'Edit Product' if product else 'Add New Product' }}{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    
+    <div class="flex items-center justify-between">
+        <a href="/admin/products" class="text-xs text-gray-500 hover:text-gold flex items-center gap-1.5">
+            <i class="fa-solid fa-arrow-left"></i> Back to Product Catalog
+        </a>
+    </div>
+
+    <form method="POST" action="{{ '/admin/products/edit/' ~ product.id if product else '/admin/products/new' }}" enctype="multipart/form-data" class="space-y-6">
+        
+        <!-- Basic Info Card -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 text-xs">
+            <h3 class="font-serif text-base font-bold text-gray-900 pb-3 border-b border-gray-100">Product Information</h3>
+
+            <div>
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Product Title *</label>
+                <input type="text" name="name" required value="{{ product.name if product else '' }}" placeholder="e.g. Peacock Symphony Hand-Painted Cotton T-Shirt" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Category *</label>
+                    <select name="category_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold">
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if product and product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">SKU Code *</label>
+                    <input type="text" name="sku" required value="{{ product.sku if product else default_sku }}" placeholder="SHB-CAT-001" class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase font-mono">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Badge Highlight</label>
+                    <select name="badge" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold">
+                        <option value="">No Badge</option>
+                        <option value="New" {% if product and product.badge == 'New' %}selected{% endif %}>New</option>
+                        <option value="Bestseller" {% if product and product.badge == 'Bestseller' %}selected{% endif %}>Bestseller</option>
+                        <option value="Trending" {% if product and product.badge == 'Trending' %}selected{% endif %}>Trending</option>
+                        <option value="Sale" {% if product and product.badge == 'Sale' %}selected{% endif %}>Sale</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Short Description (Summary) *</label>
+                <textarea name="short_description" rows="2" required placeholder="Brief 1-2 sentence overview for product cards" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold">{{ product.short_description if product else '' }}</textarea>
+            </div>
+
+            <div>
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Detailed Description *</label>
+                <textarea name="description" rows="5" required placeholder="Complete craftsmanship story, inspiration, and styling advice" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold">{{ product.description if product else '' }}</textarea>
+            </div>
+
+            <div>
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Fabric & Care Instructions</label>
+                <textarea name="care_instructions" rows="2" placeholder="Washing, storage, and handling advice" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold">{{ product.care_instructions if product else '' }}</textarea>
+            </div>
+        </div>
+
+        <!-- Pricing & Inventory Card -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 text-xs">
+            <h3 class="font-serif text-base font-bold text-gray-900 pb-3 border-b border-gray-100">Pricing, Inventory & Shipping</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Selling Price (₹) *</label>
+                    <input type="number" step="0.01" name="price" required value="{{ product.price if product else '' }}" placeholder="1499.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg font-bold">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Original MRP (₹) *</label>
+                    <input type="number" step="0.01" name="mrp" required value="{{ product.mrp if product else '' }}" placeholder="2199.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg font-bold">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Stock Quantity *</label>
+                    <input type="number" name="stock" required value="{{ product.stock if product else 15 }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Weight (Grams) *</label>
+                    <input type="number" name="weight_grams" required value="{{ product.weight_grams if product else 350 }}" placeholder="350" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Available Sizes (Comma Separated)</label>
+                    <input type="text" name="sizes" value="{{ product.sizes if product else 'Free Size' }}" placeholder="XS, S, M, L, XL, XXL or Free Size" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Colors / Finishes (Optional)</label>
+                    <input type="text" name="colors" value="{{ product.colors if product else '' }}" placeholder="e.g. Blush Pink, Antique Gold" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 pt-3">
+                <label class="flex items-center gap-2 cursor-pointer font-semibold text-gray-800">
+                    <input type="checkbox" name="is_featured" value="1" {% if product and product.is_featured %}checked{% endif %} class="rounded text-gold focus:ring-gold">
+                    <span>Feature on Homepage Showcase</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer font-semibold text-gray-800">
+                    <input type="checkbox" name="is_active" value="1" {% if not product or product.is_active %}checked{% endif %} class="rounded text-gold focus:ring-gold">
+                    <span>Active (Visible in Store)</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Images Card -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 text-xs">
+            <h3 class="font-serif text-base font-bold text-gray-900 pb-3 border-b border-gray-100">Product Images</h3>
+
+            <div>
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Upload Product Images from Computer</label>
+                <input type="file" name="product_files" multiple accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50">
+                <p class="text-[11px] text-gray-400 mt-1">Supports JPG, PNG, WEBP. You can select multiple images.</p>
+            </div>
+
+            <div>
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Or Add Image URLs (One URL per line)</label>
+                <textarea name="image_urls" rows="3" placeholder="https://images.unsplash.com/photo-..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold">{% if product and product.images %}{% for img in product.images %}{{ img.image_url }}&#10;{% endfor %}{% endif %}</textarea>
+            </div>
+
+            {% if product and product.images and product.images|length > 0 %}
+            <div>
+                <span class="block font-bold text-gray-700 mb-2">Current Images Preview:</span>
+                <div class="flex items-center gap-3 overflow-x-auto pb-2">
+                    {% for img in product.images %}
+                    <img src="{{ img.image_url }}" alt="Preview" class="w-16 h-20 object-cover rounded border border-gray-200">
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex items-center justify-end gap-3">
+            <a href="/admin/products" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition">
+                Cancel
+            </a>
+            <button type="submit" class="btn-luxury-gold px-8 py-2.5 rounded-xl text-xs uppercase tracking-wider font-bold shadow-md">
+                {{ 'Save Changes' if product else 'Publish Product' }}
+            </button>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}
+

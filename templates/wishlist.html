@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}My Wishlist | Shubhashtu Fashion{% endblock %}
+
+{% block content %}
+<div class="bg-rose-50/50 py-8 border-b border-rose-100">
+    <div class="container mx-auto px-4 text-center">
+        <span class="text-xs uppercase tracking-widest text-rose-600 font-bold"><i class="fa-solid fa-heart mr-1"></i> Saved Items</span>
+        <h1 class="font-serif text-3xl font-bold text-gray-900 mt-1">My Wishlist</h1>
+        <p class="text-xs text-gray-500 mt-1">All your favorite Indian handcrafted pieces saved in one place</p>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-10">
+    {% if items|length > 0 %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for product in items %}
+        <div class="product-card bg-white rounded-xl overflow-hidden border border-rose-100 flex flex-col justify-between shadow-sm">
+            <div class="product-img-wrapper aspect-square relative">
+                <a href="/product/{{ product.slug }}">
+                    <img src="{{ product.primary_image|default('/static/images/logo.jpg') }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                </a>
+                <button onclick="toggleWishlist({{ product.id }}, this)" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow flex items-center justify-center text-rose-600 hover:scale-110 transition">
+                    <i class="fa-solid fa-heart text-sm"></i>
+                </button>
+                {% if product.discount_pct > 0 %}
+                <span class="absolute bottom-3 left-3 bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+                    {{ product.discount_pct }}% OFF
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="p-4 flex flex-col flex-1 justify-between">
+                <div>
+                    <span class="text-[10px] text-gray-500 uppercase tracking-wider">{{ product.category_name }}</span>
+                    <a href="/product/{{ product.slug }}" class="font-serif text-sm font-bold text-gray-900 hover:text-gold block line-clamp-1 mt-0.5">
+                        {{ product.name }}
+                    </a>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span class="text-base font-bold text-gray-900">₹{{ "%.2f"|format(product.price) }}</span>
+                        {% if product.mrp > product.price %}
+                        <span class="text-xs text-gray-400 line-through">₹{{ "%.2f"|format(product.mrp) }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-rose-50 flex items-center gap-2">
+                    <button onclick="addToCart({{ product.id }}, 1, 'Free Size'); toggleWishlist({{ product.id }}, this);" class="flex-1 btn-luxury-gold py-2 text-xs uppercase tracking-wider font-bold rounded-lg text-center">
+                        <i class="fa-solid fa-bag-shopping mr-1"></i> Move to Bag
+                    </button>
+                    <button onclick="toggleWishlist({{ product.id }}, this)" class="p-2 text-rose-500 hover:text-rose-700 text-xs" title="Remove">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="max-w-md mx-auto text-center py-16 bg-white rounded-3xl border border-rose-100 p-8 shadow-sm">
+        <div class="w-20 h-20 rounded-full bg-rose-50 flex items-center justify-center text-rose-400 text-3xl mx-auto mb-4">
+            <i class="fa-regular fa-heart"></i>
+        </div>
+        <h2 class="font-serif text-2xl font-bold text-gray-900">Your Wishlist is Empty</h2>
+        <p class="text-xs text-gray-500 mt-2">Browse through our bespoke earrings, hand-painted cotton t-shirts, and accessories to save your favorites!</p>
+        <a href="/shop" class="mt-6 inline-block btn-luxury-gold px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest shadow-md">
+            Explore Collection
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

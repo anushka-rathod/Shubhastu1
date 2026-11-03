@@ -1,0 +1,621 @@
+{% extends "base.html" %}
+
+{% block title %}Shop Collection | {{ current_category.name if current_category else 'All Products' }} | Shubhashtu Fashion{% endblock %}
+
+{% block content %}
+<!-- ========================================== -->
+<!-- 1. DYNAMIC AESTHETIC CATEGORY HERO BANNERS -->
+<!-- ========================================== -->
+
+{% if current_category_slug == 'earrings' %}
+<!-- ROYAL EARRING ATELIER HERO BANNER -->
+<section class="relative bg-gradient-to-b from-[#fbf4f5] via-[#fff8f9] to-white py-12 border-b border-rose-100 overflow-hidden">
+    <div class="absolute -top-16 -right-16 w-72 h-72 bg-gold/5 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-16 -left-16 w-72 h-72 bg-rose-200/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="container mx-auto px-4 max-w-6xl text-center relative z-10">
+        <!-- Luxury Badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-bold tracking-widest uppercase mb-3">
+            <i class="fa-solid fa-gem text-[10px]"></i> The Royal Earring Atelier <i class="fa-solid fa-gem text-[10px]"></i>
+        </div>
+
+        <h1 class="font-serif text-3xl sm:text-5xl font-bold text-gray-950 tracking-tight leading-tight">
+            Handcrafted Heritage Earrings
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-600 mt-3 max-w-2xl mx-auto font-light leading-relaxed">
+            Inspired by the royal courts of Rajputana and South Indian temple architecture. Every jhumka, statement chandbali, and polki drop is handcrafted with 24K gold micron plating, genuine Jaipur Kundan stones, and intricate Meenakari enamel.
+        </p>
+
+        <!-- Curated Aesthetic Style Pills -->
+        <div class="flex flex-wrap items-center justify-center gap-2 mt-6">
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-400 mr-1 hidden sm:inline">Styles:</span>
+            <a href="/shop/earrings" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if not current_search %}bg-gray-900 text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                All Earrings
+            </a>
+            <a href="/shop/earrings?q=Kundan" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Kundan' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                ✨ Kundan & Meenakari
+            </a>
+            <a href="/shop/earrings?q=Temple" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Temple' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                🦚 Temple Jhumkas
+            </a>
+            <a href="/shop/earrings?q=Pearl" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Pearl' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                🌸 Freshwater Pearls
+            </a>
+            <a href="/shop/earrings?q=Afghani" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Afghani' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                🪞 Afghani Tribal Silver
+            </a>
+            <a href="/shop/earrings?q=Polki" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Polki' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                💎 Palace Polki
+            </a>
+            <a href="/shop/earrings?q=Lotus" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Lotus' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                🪷 Pastel Enamels
+            </a>
+        </div>
+
+        <!-- Quality Assurance Strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 pt-6 border-t border-rose-100/80 max-w-4xl mx-auto text-[11px] text-gray-600">
+            <div class="flex items-center justify-center gap-2 p-2 bg-white/70 rounded-xl border border-rose-100 shadow-2xs">
+                <i class="fa-solid fa-crown text-gold"></i>
+                <span class="font-medium">24K Gold Micron Polish</span>
+            </div>
+            <div class="flex items-center justify-center gap-2 p-2 bg-white/70 rounded-xl border border-rose-100 shadow-2xs">
+                <i class="fa-solid fa-shield-halved text-gold"></i>
+                <span class="font-medium">Skin-Safe Hypoallergenic</span>
+            </div>
+            <div class="flex items-center justify-center gap-2 p-2 bg-white/70 rounded-xl border border-rose-100 shadow-2xs">
+                <i class="fa-solid fa-hands-holding text-gold"></i>
+                <span class="font-medium">Master Karigar Craft</span>
+            </div>
+            <div class="flex items-center justify-center gap-2 p-2 bg-white/70 rounded-xl border border-rose-100 shadow-2xs">
+                <i class="fa-solid fa-gift text-gold"></i>
+                <span class="font-medium">Velvet Keepsake Box</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% elif current_category_slug == 'hand-painted-t-shirts' %}
+<!-- WEARABLE ART GALLERY HERO BANNER -->
+<section class="relative bg-gradient-to-b from-[#f9f5f1] via-[#fffbf7] to-white py-12 border-b border-amber-100/60 overflow-hidden">
+    <div class="absolute -top-16 -right-16 w-72 h-72 bg-amber-200/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-16 -left-16 w-72 h-72 bg-rose-200/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="container mx-auto px-4 max-w-6xl text-center relative z-10">
+        <!-- Atelier Badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-amber-100/80 border border-amber-300/60 text-amber-900 text-xs font-bold tracking-widest uppercase mb-3">
+            <i class="fa-solid fa-palette text-[10px]"></i> 100% Hand-Painted Wearable Art <i class="fa-solid fa-palette text-[10px]"></i>
+        </div>
+
+        <h1 class="font-serif text-3xl sm:text-5xl font-bold text-gray-950 tracking-tight leading-tight">
+            Hand-Painted Cotton Artistry
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-600 mt-3 max-w-2xl mx-auto font-light leading-relaxed">
+            Every garment is an original canvas. Painted stroke-by-stroke with permanent wash-safe mineral pigments on 220 GSM bio-washed combed organic cotton. No two pieces are ever identical.
+        </p>
+
+        <!-- Curated Aesthetic Style Pills -->
+        <div class="flex flex-wrap items-center justify-center gap-2 mt-6">
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-400 mr-1 hidden sm:inline">Motifs:</span>
+            <a href="/shop/hand-painted-t-shirts" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if not current_search %}bg-gray-900 text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                All Artworks
+            </a>
+            <a href="/shop/hand-painted-t-shirts?q=Peacock" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Peacock' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                🦚 Peacock Symphony
+            </a>
+            <a href="/shop/hand-painted-t-shirts?q=Mandala" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Mandala' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                ☸️ Sacred Mandala
+            </a>
+            <a href="/shop/hand-painted-t-shirts?q=Elephant" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Elephant' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                🐘 Royal Gaja
+            </a>
+            <a href="/shop/hand-painted-t-shirts?q=Lotus" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Lotus' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                🪷 Pink Lotus
+            </a>
+            <a href="/shop/hand-painted-t-shirts?q=Sun" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Sun' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                ☀️ Surya Devata
+            </a>
+            <a href="/shop/hand-painted-t-shirts?q=Tree" class="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_search == 'Tree' %}bg-gold text-white shadow-sm{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                🌿 Tree of Life
+            </a>
+        </div>
+
+        <!-- Artisanal Assurance Strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 pt-6 border-t border-amber-100 max-w-4xl mx-auto text-[11px] text-gray-600">
+            <div class="flex items-center justify-center gap-2 p-2 bg-white/70 rounded-xl border border-amber-100 shadow-2xs">
+                <i class="fa-solid fa-paintbrush text-gold"></i>
+                <span class="font-medium">100% Hand-Painted Original</span>
+            </div>
+            <div class="flex items-center justify-center gap-2 p-2 bg-white/70 rounded-xl border border-amber-100 shadow-2xs">
+                <i class="fa-solid fa-feather-pointed text-gold"></i>
+                <span class="font-medium">220 GSM Bio-Washed Cotton</span>
+            </div>
+            <div class="flex items-center justify-center gap-2 p-2 bg-white/70 rounded-xl border border-amber-100 shadow-2xs">
+                <i class="fa-solid fa-droplet text-gold"></i>
+                <span class="font-medium">Permanent Wash-Safe Inks</span>
+            </div>
+            <div class="flex items-center justify-center gap-2 p-2 bg-white/70 rounded-xl border border-amber-100 shadow-2xs">
+                <i class="fa-solid fa-shirt text-gold"></i>
+                <span class="font-medium">Pre-Shrunk Luxury Streetwear</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% else %}
+<!-- GENERAL SHOP HEADER -->
+<section class="bg-gradient-to-r from-rose-50 via-white to-rose-50 py-10 border-b border-rose-100">
+    <div class="container mx-auto px-4 text-center">
+        <span class="text-xs uppercase tracking-widest text-gold font-bold">Shubhashtu Boutique</span>
+        <h1 class="font-serif text-3xl sm:text-4xl font-bold text-gray-900 mt-1">
+            {{ current_category.name if current_category else 'Shop All Collections' }}
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-500 mt-2 max-w-xl mx-auto font-light">
+            {{ current_category.description if current_category else 'Explore handcrafted Indian jewelry, authentic hand-painted tees, and festive ethnic wear.' }}
+        </p>
+
+        <!-- Category Filter Pills -->
+        <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-6">
+            <a href="/shop" class="px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if not current_category_slug or current_category_slug == 'all' %}bg-gold text-white shadow-md{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                All Products
+            </a>
+            {% for cat in all_categories %}
+            <a href="/shop/{{ cat.slug }}" class="px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition {% if current_category_slug == cat.slug %}bg-gold text-white shadow-md{% else %}bg-white border border-rose-200 text-gray-700 hover:border-gold hover:text-gold{% endif %}">
+                {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+<!-- ========================================== -->
+<!-- 2. MAIN CATALOG BODY & SIDEBAR FILTERS    -->
+<!-- ========================================== -->
+<div class="container mx-auto px-4 py-10">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        <!-- Sidebar Filters -->
+        <aside class="lg:col-span-1">
+            <div class="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm sticky top-28 space-y-6">
+                <div class="flex items-center justify-between pb-4 border-b border-rose-100">
+                    <h3 class="font-serif text-base font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-gold text-sm"></i> Filters
+                    </h3>
+                    <a href="{{ request.path }}" class="text-xs text-rose-600 hover:underline">Reset</a>
+                </div>
+
+                <form method="GET" action="{{ request.path }}" class="space-y-6">
+                    <!-- Categories -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-800 mb-3">Categories</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-gold">
+                                <input type="radio" name="cat" value="all" onchange="window.location.href='/shop'" {% if not current_category_slug or current_category_slug == 'all' %}checked{% endif %} class="text-gold focus:ring-gold">
+                                <span>All Collections</span>
+                            </label>
+                            {% for c in all_categories %}
+                            <label class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-gold">
+                                <input type="radio" name="cat" value="{{ c.slug }}" onchange="window.location.href='/shop/{{ c.slug }}'" {% if current_category_slug == c.slug %}checked{% endif %} class="text-gold focus:ring-gold">
+                                <span>{{ c.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Badges Filter -->
+                    <div class="pt-4 border-t border-rose-100">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-800 mb-3">Curations</h4>
+                        <div class="space-y-2">
+                            {% for b in ['Bestseller', 'Trending', 'New', 'Exclusive', 'Sale'] %}
+                            <label class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-gold">
+                                <input type="radio" name="badge" value="{{ b }}" {% if current_badge == b %}checked{% endif %} onchange="this.form.submit()" class="text-gold focus:ring-gold">
+                                <span>{{ b }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="pt-4 border-t border-rose-100">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-800 mb-3">Price Range (₹)</h4>
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <input type="number" name="min_price" value="{{ min_price|default('') }}" placeholder="Min ₹" class="w-full px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-gold">
+                            <input type="number" name="max_price" value="{{ max_price|default('') }}" placeholder="Max ₹" class="w-full px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-gold">
+                        </div>
+                        <button type="submit" class="w-full py-2 text-xs font-bold uppercase tracking-wider bg-gray-900 text-white rounded-xl hover:bg-gold transition shadow-sm">
+                            Apply Filter
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Free Shipping Banner -->
+                <div class="p-4 rounded-xl bg-rose-50/70 border border-rose-200/60 text-center space-y-1">
+                    <i class="fa-solid fa-truck-fast text-gold text-lg"></i>
+                    <p class="font-serif font-bold text-xs text-gray-900">Complimentary Shipping</p>
+                    <p class="text-[11px] text-gray-500">Free delivery across India on orders above ₹999</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Product Grid & Sorting -->
+        <main class="lg:col-span-3">
+            
+            <!-- Top Bar: Results Count & Sort Dropdown -->
+            <div class="flex flex-col sm:flex-row items-center justify-between pb-5 mb-6 border-b border-rose-100 gap-4">
+                <p class="text-xs text-gray-500">
+                    Showing <strong class="text-gray-900 font-bold">{{ products|length }}</strong> handcrafted creations
+                    {% if current_search %}for "<strong>{{ current_search }}</strong>" <a href="{{ request.path }}" class="text-rose-600 ml-1 text-[11px] hover:underline">(Clear search)</a>{% endif %}
+                </p>
+
+                <!-- Sorting Dropdown -->
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="text-gray-500">Sort By:</span>
+                    <select onchange="updateSort(this.value)" class="px-3 py-1.5 bg-white border border-rose-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:border-gold shadow-2xs">
+                        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+                        <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>Most Popular</option>
+                        <option value="price_low_high" {% if current_sort == 'price_low_high' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high_low" {% if current_sort == 'price_high_low' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="discount" {% if current_sort == 'discount' %}selected{% endif %}>Biggest Savings %</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            {% if products|length > 0 %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for product in products %}
+                <div class="product-card bg-white rounded-2xl overflow-hidden border border-rose-100/80 flex flex-col justify-between shadow-2xs hover:border-gold/50">
+                    
+                    <!-- Product Image & Secondary Hover Swap -->
+                    <div class="product-img-wrapper relative aspect-square overflow-hidden bg-[#fbf7f8]">
+                        <a href="/product/{{ product.slug }}" class="block w-full h-full">
+                            <img src="{{ product.primary_image|default('/static/images/logo.jpg') }}" 
+                                 alt="{{ product.name }}" 
+                                 class="primary-img {% if product.secondary_image %}has-secondary{% endif %} w-full h-full object-cover">
+                            
+                            {% if product.secondary_image %}
+                            <img src="{{ product.secondary_image }}" 
+                                 alt="{{ product.name }} alternate shot" 
+                                 class="secondary-img absolute inset-0 w-full h-full object-cover">
+                            {% endif %}
+                        </a>
+
+                        <!-- Badge Tag -->
+                        {% if product.badge %}
+                        <div class="absolute top-3 left-3 z-10">
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm
+                                {% if product.badge == 'Bestseller' %}bg-amber-100 text-amber-950 border border-amber-300
+                                {% elif product.badge == 'Trending' %}bg-purple-100 text-purple-950 border border-purple-200
+                                {% elif product.badge == 'New' %}bg-emerald-100 text-emerald-950 border border-emerald-200
+                                {% elif product.badge == 'Exclusive' %}bg-gold text-white font-bold
+                                {% else %}bg-rose-100 text-rose-950 border border-rose-200{% endif %}">
+                                {{ product.badge }}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        <!-- Wishlist Toggle -->
+                        <button onclick="toggleWishlist({{ product.id }}, this)" 
+                                class="wishlist-btn absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-600 hover:text-rose-600 transition" 
+                                title="Add to Wishlist">
+                            <i class="fa-regular fa-heart text-xs"></i>
+                        </button>
+
+                        <!-- Discount Pill -->
+                        {% if product.discount_pct > 0 %}
+                        <div class="absolute bottom-3 left-3 z-10 bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+                            {{ product.discount_pct }}% OFF
+                        </div>
+                        {% endif %}
+
+                        <!-- Quick View Overlay Button -->
+                        <button type="button" 
+                                onclick="openQuickViewModal(this)"
+                                data-id="{{ product.id }}"
+                                data-name="{{ product.name }}"
+                                data-category="{{ product.category_name }}"
+                                data-price="{{ '%.2f'|format(product.price) }}"
+                                data-mrp="{{ '%.2f'|format(product.mrp) }}"
+                                data-discount="{{ product.discount_pct }}"
+                                data-image="{{ product.primary_image }}"
+                                data-secondary="{{ product.secondary_image|default('') }}"
+                                data-description="{{ product.short_description }}"
+                                data-sizes="{{ product.sizes|default('Free Size') }}"
+                                data-colors="{{ product.colors|default('') }}"
+                                data-slug="{{ product.slug }}"
+                                data-rating="{{ product.avg_rating }}"
+                                data-reviews="{{ product.review_count }}"
+                                class="quick-view-btn absolute bottom-3 right-3 z-10 px-3 py-1 bg-gray-900/90 hover:bg-gold text-white text-[11px] font-semibold rounded-full shadow-lg backdrop-blur-sm transition flex items-center gap-1.5">
+                            <i class="fa-regular fa-eye"></i> Quick View
+                        </button>
+                    </div>
+
+                    <!-- Product Details Body -->
+                    <div class="p-4 flex flex-col flex-1 justify-between space-y-3">
+                        <div>
+                            <!-- Category and Star Rating -->
+                            <div class="flex items-center justify-between text-[11px] text-gray-500 mb-1">
+                                <span class="uppercase tracking-wider font-semibold text-gray-400">{{ product.category_name }}</span>
+                                <div class="flex items-center text-amber-500 font-bold">
+                                    <i class="fa-solid fa-star text-[10px] mr-1"></i>
+                                    <span>{{ product.avg_rating }}</span>
+                                    <span class="text-gray-400 font-normal ml-0.5">({{ product.review_count }})</span>
+                                </div>
+                            </div>
+
+                            <!-- Product Name -->
+                            <a href="/product/{{ product.slug }}" class="font-serif text-sm sm:text-base font-bold text-gray-900 hover:text-gold line-clamp-1 transition">
+                                {{ product.name }}
+                            </a>
+
+                            <!-- Short Description -->
+                            <p class="text-[11px] text-gray-500 mt-1 line-clamp-2 font-light leading-relaxed">
+                                {{ product.short_description }}
+                            </p>
+
+                            <!-- Color / Style Indicators -->
+                            {% if product.colors_list and product.colors_list|length > 0 %}
+                            <div class="flex items-center gap-1.5 mt-2.5">
+                                <span class="text-[10px] text-gray-400 uppercase font-semibold">Shades:</span>
+                                {% for col in product.colors_list %}
+                                <span class="text-[10px] bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded font-medium">
+                                    {{ col }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Price & Action CTA -->
+                        <div class="pt-3 border-t border-rose-50 flex items-center justify-between">
+                            <div>
+                                <div class="flex items-baseline gap-1.5">
+                                    <span class="text-base font-bold text-gray-900">₹{{ "%.2f"|format(product.price) }}</span>
+                                    {% if product.mrp > product.price %}
+                                    <span class="text-xs text-gray-400 line-through">₹{{ "%.2f"|format(product.mrp) }}</span>
+                                    {% endif %}
+                                </div>
+                                {% if product.mrp > product.price %}
+                                <p class="text-[10px] text-emerald-600 font-semibold">Save ₹{{ "%.0f"|format(product.mrp - product.price) }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="addToCart({{ product.id }}, 1, '{{ product.sizes_list[0]|default('Free Size') }}')" 
+                                        class="p-2.5 rounded-full bg-rose-50 hover:bg-gold hover:text-white text-gray-800 transition shadow-2xs" 
+                                        title="Add to Shopping Bag">
+                                    <i class="fa-solid fa-bag-shopping text-xs"></i>
+                                </button>
+                                <a href="/product/{{ product.slug }}" 
+                                   class="text-[11px] font-bold uppercase tracking-wider px-3.5 py-2 bg-gray-900 text-white rounded-full hover:bg-gold transition shadow-2xs">
+                                    View
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="bg-white p-12 rounded-2xl border border-rose-100 text-center space-y-4">
+                <div class="w-16 h-16 rounded-full bg-rose-50 flex items-center justify-center text-gold text-2xl mx-auto shadow-inner">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <h3 class="font-serif text-xl font-bold text-gray-900">No creations found in this view</h3>
+                <p class="text-xs text-gray-500 max-w-sm mx-auto">Try resetting filters or adjusting search keywords to browse our handcrafted collections.</p>
+                <a href="{{ request.path }}" class="inline-block btn-luxury-gold px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider shadow">
+                    Reset Filters
+                </a>
+            </div>
+            {% endif %}
+
+        </main>
+
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 3. INTERACTIVE QUICK VIEW MODAL            -->
+<!-- ========================================== -->
+<div id="quickViewModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-rose-100 modal-content-animated relative max-h-[90vh] flex flex-col md:flex-row">
+        
+        <!-- Close Button -->
+        <button onclick="closeQuickViewModal()" class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/90 shadow text-gray-500 hover:text-rose-600 flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+
+        <!-- Left: Image Gallery Preview -->
+        <div class="md:w-1/2 bg-gray-50 p-6 flex flex-col justify-between items-center relative border-r border-gray-100">
+            <div class="w-full aspect-square rounded-2xl overflow-hidden bg-white shadow-inner flex items-center justify-center">
+                <img id="qvMainImage" src="" alt="Product" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Thumbnail Switcher -->
+            <div id="qvThumbnails" class="flex items-center gap-2 mt-4">
+                <button type="button" onclick="switchQvImage(this.dataset.src)" id="qvThumb1" class="w-12 h-12 rounded-lg border-2 border-gold overflow-hidden">
+                    <img id="qvThumbImg1" src="" class="w-full h-full object-cover">
+                </button>
+                <button type="button" onclick="switchQvImage(this.dataset.src)" id="qvThumb2" class="w-12 h-12 rounded-lg border border-gray-200 hover:border-gold overflow-hidden hidden">
+                    <img id="qvThumbImg2" src="" class="w-full h-full object-cover">
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: Product Details & Fast Purchase -->
+        <div class="md:w-1/2 p-6 flex flex-col justify-between overflow-y-auto space-y-4">
+            <div>
+                <span id="qvCategory" class="text-[10px] uppercase font-bold tracking-widest text-gold block mb-1"></span>
+                <h3 id="qvTitle" class="font-serif text-xl font-bold text-gray-900 leading-snug"></h3>
+                
+                <!-- Ratings -->
+                <div class="flex items-center gap-2 mt-1.5 text-xs text-amber-500">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-star text-[11px] mr-1"></i>
+                        <span id="qvRating" class="font-bold text-gray-800"></span>
+                    </div>
+                    <span id="qvReviews" class="text-gray-400 text-[11px]"></span>
+                </div>
+
+                <!-- Price Block -->
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span id="qvPrice" class="text-2xl font-bold text-gray-900"></span>
+                    <span id="qvMrp" class="text-sm text-gray-400 line-through"></span>
+                    <span id="qvDiscount" class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded"></span>
+                </div>
+
+                <!-- Description -->
+                <p id="qvDescription" class="text-xs text-gray-600 mt-3 font-light leading-relaxed"></p>
+
+                <!-- Sizes Selector -->
+                <div id="qvSizeSection" class="mt-4 pt-3 border-t border-gray-100">
+                    <label class="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-2">Select Size:</label>
+                    <div id="qvSizeOptions" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Color note -->
+                <div id="qvColorSection" class="mt-3">
+                    <span class="text-xs text-gray-500">Color/Shade: <strong id="qvColors" class="text-gray-800"></strong></span>
+                </div>
+            </div>
+
+            <!-- Purchase CTAs -->
+            <div class="pt-4 border-t border-gray-100 space-y-2">
+                <div class="flex items-center gap-2">
+                    <button id="qvAddToCartBtn" onclick="qvAddToCart()" class="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-gold text-white hover:bg-gold-dark transition shadow flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-bag-shopping"></i> Add to Bag
+                    </button>
+                    <button id="qvBuyNowBtn" onclick="qvBuyNow()" class="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-gray-900 text-white hover:bg-gold transition shadow">
+                        Buy Now
+                    </button>
+                </div>
+
+                <a id="qvFullPageLink" href="#" class="block text-center text-xs font-semibold text-gray-500 hover:text-gold pt-1">
+                    View Complete Product Details &rarr;
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+function updateSort(val) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort', val);
+    window.location.href = url.toString();
+}
+
+// Quick View Modal Data Handler
+let activeQvProduct = {};
+let selectedQvSize = 'Free Size';
+
+function openQuickViewModal(btn) {
+    const d = btn.dataset;
+    activeQvProduct = {
+        id: parseInt(d.id),
+        name: d.name,
+        category: d.category,
+        price: d.price,
+        mrp: d.mrp,
+        discount: d.discount,
+        image: d.image,
+        secondary: d.secondary,
+        description: d.description,
+        sizes: d.sizes ? d.sizes.split(',').map(s => s.trim()) : ['Free Size'],
+        colors: d.colors,
+        slug: d.slug,
+        rating: d.rating || '5.0',
+        reviews: d.reviews || '0'
+    };
+
+    document.getElementById('qvCategory').textContent = activeQvProduct.category;
+    document.getElementById('qvTitle').textContent = activeQvProduct.name;
+    document.getElementById('qvRating').textContent = activeQvProduct.rating;
+    document.getElementById('qvReviews').textContent = `(${activeQvProduct.reviews} reviews)`;
+    document.getElementById('qvPrice').textContent = `₹${activeQvProduct.price}`;
+    document.getElementById('qvMrp').textContent = activeQvProduct.mrp ? `₹${activeQvProduct.mrp}` : '';
+    document.getElementById('qvDiscount').textContent = activeQvProduct.discount > 0 ? `${activeQvProduct.discount}% OFF` : '';
+    document.getElementById('qvDescription').textContent = activeQvProduct.description;
+    document.getElementById('qvColors').textContent = activeQvProduct.colors || 'Standard';
+    document.getElementById('qvFullPageLink').href = `/product/${activeQvProduct.slug}`;
+
+    // Images
+    const mainImg = document.getElementById('qvMainImage');
+    mainImg.src = activeQvProduct.image;
+    document.getElementById('qvThumbImg1').src = activeQvProduct.image;
+    document.getElementById('qvThumb1').dataset.src = activeQvProduct.image;
+
+    const thumb2 = document.getElementById('qvThumb2');
+    if (activeQvProduct.secondary) {
+        document.getElementById('qvThumbImg2').src = activeQvProduct.secondary;
+        thumb2.dataset.src = activeQvProduct.secondary;
+        thumb2.classList.remove('hidden');
+    } else {
+        thumb2.classList.add('hidden');
+    }
+
+    // Size Pills
+    const sizeContainer = document.getElementById('qvSizeOptions');
+    sizeContainer.innerHTML = '';
+    selectedQvSize = activeQvProduct.sizes[0] || 'Free Size';
+
+    activeQvProduct.sizes.forEach((sz, idx) => {
+        const szBtn = document.createElement('button');
+        szBtn.type = 'button';
+        szBtn.className = `px-3 py-1 text-xs font-semibold rounded-lg border transition ${idx === 0 ? 'bg-gold text-white border-gold' : 'bg-white text-gray-700 border-gray-200 hover:border-gold'}`;
+        szBtn.textContent = sz;
+        szBtn.onclick = function() {
+            selectedQvSize = sz;
+            sizeContainer.querySelectorAll('button').forEach(b => {
+                b.className = 'px-3 py-1 text-xs font-semibold rounded-lg border transition bg-white text-gray-700 border-gray-200 hover:border-gold';
+            });
+            szBtn.className = 'px-3 py-1 text-xs font-semibold rounded-lg border transition bg-gold text-white border-gold';
+        };
+        sizeContainer.appendChild(szBtn);
+    });
+
+    const modal = document.getElementById('quickViewModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function switchQvImage(src) {
+    if (src) {
+        document.getElementById('qvMainImage').src = src;
+    }
+}
+
+function closeQuickViewModal() {
+    const modal = document.getElementById('quickViewModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+async function qvAddToCart() {
+    if (!activeQvProduct.id) return;
+    await addToCart(activeQvProduct.id, 1, selectedQvSize);
+    closeQuickViewModal();
+}
+
+async function qvBuyNow() {
+    if (!activeQvProduct.id) return;
+    await addToCart(activeQvProduct.id, 1, selectedQvSize);
+    window.location.href = '/checkout';
+}
+
+// Close on ESC or backdrop click
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeQuickViewModal();
+});
+document.getElementById('quickViewModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'quickViewModal') closeQuickViewModal();
+});
+</script>
+{% endblock %}

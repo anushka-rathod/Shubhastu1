@@ -1,0 +1,140 @@
+{% extends "admin/base_admin.html" %}
+
+{% block header_title %}Delivery Calculation Rules & Shiprocket{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-5xl mx-auto space-y-8">
+    
+    {% if success_msg %}
+    <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-800 flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+        <span>{{ success_msg }}</span>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/admin/shipping/save" class="space-y-6">
+        
+        <!-- Standard Shipping Rules Card -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 text-xs">
+            <div class="pb-3 border-b border-gray-100">
+                <h3 class="font-serif text-base font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-truck text-gold"></i> Domestic Delivery Rules (All India)
+                </h3>
+                <p class="text-gray-500 mt-0.5">Configure standard rates, free shipping threshold, and weight rules</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Standard Delivery Fee (₹) *</label>
+                    <input type="number" step="0.01" name="standard_shipping_fee" required value="{{ settings.standard_shipping_fee|default('70') }}" class="w-full px-3 py-2 border rounded-lg font-bold">
+                    <p class="text-[11px] text-gray-400 mt-1">Charged on domestic orders below free shipping limit</p>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Free Shipping Order Value (₹) *</label>
+                    <input type="number" step="0.01" name="free_shipping_threshold" required value="{{ settings.free_shipping_threshold|default('999') }}" class="w-full px-3 py-2 border rounded-lg font-bold text-emerald-700">
+                    <p class="text-[11px] text-gray-400 mt-1">Orders at or above this amount get 100% free delivery</p>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Express Air Shipping Fee (₹) *</label>
+                    <input type="number" step="0.01" name="express_shipping_fee" required value="{{ settings.express_shipping_fee|default('120') }}" class="w-full px-3 py-2 border rounded-lg font-bold">
+                    <p class="text-[11px] text-gray-400 mt-1">Priority 1-2 day air dispatch service fee</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Cash on Delivery (COD) Fee (₹)</label>
+                    <input type="number" step="0.01" name="cod_fee" value="{{ settings.cod_fee|default('40') }}" class="w-full px-3 py-2 border rounded-lg font-bold">
+                    <p class="text-[11px] text-gray-400 mt-1">Additional handling charge for COD orders (Set 0 for free COD)</p>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Special / Remote Zone Surcharge (₹)</label>
+                    <input type="number" step="0.01" name="remote_zone_surcharge" value="{{ settings.remote_zone_surcharge|default('40') }}" class="w-full px-3 py-2 border rounded-lg font-bold">
+                    <p class="text-[11px] text-gray-400 mt-1">Surcharge for Northeast (79xxxx), J&K, and Island PIN codes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shiprocket Courier API Integration Card -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 text-xs">
+            <div class="pb-3 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                    <h3 class="font-serif text-base font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked text-gold"></i> Shiprocket Logistics Integration
+                    </h3>
+                    <p class="text-gray-500 mt-0.5">Automated courier rates, label generation, and tracking across BlueDart, Delhivery, DTDC</p>
+                </div>
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase {% if settings.shiprocket_email %}bg-emerald-100 text-emerald-800{% else %}bg-gray-100 text-gray-600{% endif %}">
+                    {{ 'Configured' if settings.shiprocket_email else 'Optional / Inactive' }}
+                </span>
+            </div>
+
+            <div class="p-3 bg-rose-50/50 rounded-xl border border-rose-100 text-gray-700 leading-relaxed">
+                <i class="fa-solid fa-circle-info text-gold mr-1"></i>
+                <strong>Important:</strong> If you leave Shiprocket fields empty or unconfigured, the store automatically and accurately uses your admin-defined delivery charges above. No fake calculations are ever made.
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Shiprocket Account Email</label>
+                    <input type="email" name="shiprocket_email" value="{{ settings.shiprocket_email|default('') }}" placeholder="your-email@shiprocket.com" class="w-full px-3 py-2 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Shiprocket Password</label>
+                    <input type="password" name="shiprocket_password" value="{{ settings.shiprocket_password|default('') }}" placeholder="••••••••" class="w-full px-3 py-2 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Store Dispatch Pincode</label>
+                    <input type="text" name="shiprocket_pickup_pincode" maxlength="6" value="{{ settings.shiprocket_pickup_pincode|default('560001') }}" placeholder="560001" class="w-full px-3 py-2 border rounded-lg font-mono font-bold">
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end">
+            <button type="submit" class="btn-luxury-gold px-8 py-3 rounded-xl text-xs uppercase tracking-wider font-bold shadow-md">
+                Save Shipping Settings
+            </button>
+        </div>
+
+    </form>
+
+    <!-- Test Shipping Calculator Widget -->
+    <div class="bg-gray-100 p-6 rounded-2xl border border-gray-200 text-xs space-y-3">
+        <h4 class="font-serif font-bold text-gray-900 text-sm">Test PIN Code Calculation Engine</h4>
+        <div class="flex gap-3 max-w-md">
+            <input type="text" id="test-pin" maxlength="6" placeholder="Enter PIN (e.g. 110001 or 560001)" class="flex-1 px-3 py-2 border rounded-lg bg-white">
+            <button type="button" onclick="testPinCalc()" class="btn-luxury-dark px-4 py-2 rounded-lg font-bold">
+                Calculate
+            </button>
+        </div>
+        <div id="test-pin-output"></div>
+    </div>
+
+</div>
+
+<script>
+async function testPinCalc() {
+    const pin = document.getElementById('test-pin').value.trim();
+    const out = document.getElementById('test-pin-output');
+    if (!pin || pin.length !== 6) {
+        out.innerHTML = '<span class="text-rose-600">Please enter a valid 6-digit PIN code.</span>';
+        return;
+    }
+    out.innerHTML = '<span class="text-gray-500">Calculating...</span>';
+    const res = await fetch(`/api/shipping/calculate?pincode=${pin}&subtotal=750`);
+    const data = await res.json();
+    out.innerHTML = `
+        <div class="p-3 bg-white rounded-lg border border-gray-200 mt-2 space-y-1">
+            <p><strong>City/State:</strong> ${data.city}, ${data.state} (Zone: ${data.zone})</p>
+            <p><strong>Shipping Fee:</strong> ₹${data.shipping_fee.toFixed(2)} (${data.rate_source})</p>
+            <p><strong>Estimated Days:</strong> ${data.estimated_days} (${data.estimated_date})</p>
+            <p><strong>Free Delivery:</strong> ${data.is_free_shipping ? 'Yes' : 'No (Needs ₹' + data.amount_needed_for_free_shipping.toFixed(2) + ' more)'}</p>
+        </div>
+    `;
+}
+</script>
+{% endblock %}
+
