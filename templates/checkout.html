@@ -192,7 +192,7 @@
 
                     <!-- Mini items list -->
                     <div class="max-h-60 overflow-y-auto divide-y divide-rose-50 pr-1">
-                        {% for item in cart.items %}
+                        {% for item in cart['items'] %}
                         <div class="py-3 flex items-center gap-3">
                             <img src="{{ item.primary_image|default('/static/images/logo.jpg') }}" alt="{{ item.name }}" class="w-12 h-14 object-cover rounded-lg border border-rose-100">
                             <div class="flex-1 min-w-0">

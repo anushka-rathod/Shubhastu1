@@ -237,6 +237,10 @@ def create_product(data: dict) -> int:
         return product_id
 
 def update_product(product_id: int, data: dict):
+    existing = get_product_by_id(product_id)
+    if not existing:
+        return
+    merged = {**existing, **data}
     with get_db() as conn:
         conn.execute("""
             UPDATE products SET
@@ -245,12 +249,12 @@ def update_product(product_id: int, data: dict):
                 is_featured=?, is_active=?, sizes=?, colors=?, updated_at=CURRENT_TIMESTAMP
             WHERE id=?
         """, (
-            data['name'], data['slug'], data['sku'], data['category_id'],
-            data.get('short_description', ''), data.get('description', ''),
-            data.get('care_instructions', ''), data['mrp'], data['price'],
-            data.get('stock', 10), data.get('weight_grams', 350), data.get('badge', ''),
-            data.get('is_featured', 0), data.get('is_active', 1),
-            data.get('sizes', 'Free Size'), data.get('colors', ''),
+            merged['name'], merged['slug'], merged['sku'], merged['category_id'],
+            merged.get('short_description', ''), merged.get('description', ''),
+            merged.get('care_instructions', ''), merged['mrp'], merged['price'],
+            merged.get('stock', 10), merged.get('weight_grams', 350), merged.get('badge', ''),
+            merged.get('is_featured', 0), merged.get('is_active', 1),
+            merged.get('sizes', 'Free Size'), merged.get('colors', ''),
             product_id
         ))
 

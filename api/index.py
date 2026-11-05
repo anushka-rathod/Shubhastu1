@@ -198,6 +198,26 @@ def app(environ, start_response):
 
     # ==================== ROUTING ====================
 
+    # 0. Static Files (CSS, JS, Images, Fonts)
+    if path.startswith('/static/'):
+        rel_path = path[len('/static/'):].lstrip('/')
+        static_dir = (PROJECT_ROOT / 'static').resolve()
+        file_path = (static_dir / rel_path).resolve()
+        if str(file_path).startswith(str(static_dir)) and file_path.is_file():
+            import mimetypes
+            ctype, _ = mimetypes.guess_type(str(file_path))
+            if not ctype:
+                ctype = 'application/octet-stream'
+            with open(file_path, 'rb') as f:
+                content = f.read()
+            start_response('200 OK', [
+                ('Content-Type', ctype),
+                ('Cache-Control', 'public, max-age=86400')
+            ])
+            return [content]
+        start_response('404 Not Found', [('Content-Type', 'text/plain')])
+        return [b'Static asset not found']
+
     # 1. Homepage
     if path == '' or path == '/':
         cats = dal.get_categories(only_active=True)
@@ -484,7 +504,7 @@ def app(environ, start_response):
 
     if path == '/api/search':
         sq = q('q').strip()
-        results = dal.search_products_live(sq)
+        results = dal.get_products(search=sq, limit=8) if sq else []
         clean = [{
             'id': p['id'],
             'name': p['name'],
@@ -515,7 +535,27 @@ def app(environ, start_response):
         res = dal.validate_coupon(code, subtotal)
         return json_resp(res)
 
-    if path == '/api/reviews/add' and method == 'POST':
+    if path == '/api/coupons':
+        coupons = dal.get_coupons(only_active=True)
+        return json_resp([{
+            'code': c['code'],
+            'description': c['description'],
+            'type': c['discount_type'],
+            'value': f"{c['discount_value']}% OFF" if c['discount_type'] == 'percentage' else f"Flat ₹{c['discount_value']} OFF",
+            'min_order': c['min_order_value']
+        } for c in coupons])
+
+    if path == '/api/track':
+        order_number = q('order_number').strip() or str(json_data.get('order_number', '')).strip()
+        phone = q('phone').strip() or str(json_data.get('phone', '')).strip()
+        if not order_number:
+            return json_resp({'found': False, 'message': 'Please provide an order number.'}, status='400 Bad Request')
+        tracked = dal.get_order_tracking(order_number, phone if phone else None)
+        if not tracked:
+            return json_resp({'found': False, 'message': f'Order #{order_number} not found.'}, status='404 Not Found')
+        return json_resp({'found': True, 'order': tracked})
+
+    if path in ('/api/reviews/add', '/api/review/submit') and method == 'POST':
         pid = int(p('product_id', 0))
         cname = p('customer_name')
         cemail = p('customer_email')
@@ -601,7 +641,7 @@ def app(environ, start_response):
         EmailService.send_order_confirmation(order_data['customer_email'], created, order_items)
         return json_resp({'success': True, 'order_number': created['order_number'], 'redirect_url': f'/order-success/{created["order_number"]}'})
 
-    if path == '/api/checkout/create-razorpay-order' and method == 'POST':
+    if path in ('/api/checkout/create-razorpay-order', '/api/checkout/razorpay/create-order') and method == 'POST':
         cart = dal.get_cart(session_id, user_id)
         if not cart['items']:
             return json_resp({'success': False, 'message': 'Shopping bag is empty.'})
@@ -687,7 +727,7 @@ def app(environ, start_response):
             'key_id': rzp_res['key_id']
         })
 
-    if path == '/api/checkout/verify-razorpay-payment' and method == 'POST':
+    if path in ('/api/checkout/verify-razorpay-payment', '/api/checkout/razorpay/verify') and method == 'POST':
         d = json_data
         oid = int(d.get('order_id', 0))
         rzp_oid = d.get('razorpay_order_id', '')
@@ -759,8 +799,9 @@ def app(environ, start_response):
             cats = dal.get_categories(only_active=False)
             return render('admin/product_form.html', active_page='products', product=None, categories=cats)
 
-        if re.match(r'^/admin/products/\d+/edit$', path):
-            pid = int(path.split('/')[3])
+        prod_edit_match = re.match(r'^/admin/products/(?:edit/(\d+)|(\d+)/edit)$', path)
+        if prod_edit_match:
+            pid = int(prod_edit_match.group(1) or prod_edit_match.group(2))
             if method == 'POST':
                 name = p('name').strip()
                 cid = int(p('category_id', 1))
@@ -840,7 +881,7 @@ def app(environ, start_response):
                 return redirect('/admin/orders')
             return render('admin/order_detail.html', active_page='orders', order=order)
 
-        if path == '/admin/orders/status' and method == 'POST':
+        if path in ('/admin/orders/status', '/admin/orders/update-status') and method == 'POST':
             if json_data:
                 oid = int(json_data.get('order_id', 0))
                 status = json_data.get('status', '')
