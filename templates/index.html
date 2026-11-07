@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+
+{% block title %}{{ store_settings.store_name|default('Shubhashtu Fashion') }} | {{ store_settings.tagline|default('Style That Speaks for You.') }}{% endblock %}
+
+{% block content %}
+<!-- 1. Hero Luxury Carousel / Showcase Banner -->
+<section class="relative bg-gradient-to-b from-rose-50/70 via-white to-white overflow-hidden py-12 md:py-20 border-b border-rose-100">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <!-- Left Copy -->
+            <div class="lg:col-span-7 text-center lg:text-left z-10">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blush-100 border border-blush-200 text-blush-700 text-xs font-semibold uppercase tracking-widest mb-4">
+                    <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span> New Festive Season 2026
+                </div>
+                <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-gray-950 leading-tight">
+                    Timeless Heritage, <br>
+                    <span class="text-gold-gradient italic">Artisanal Grace.</span>
+                </h1>
+                <p class="mt-4 text-base sm:text-lg text-gray-600 max-w-xl font-light leading-relaxed">
+                    Welcome to <strong class="text-gray-900 font-semibold">Shubhashtu Fashion</strong> — where heritage Indian artistry meets contemporary luxury. Discover royal Kundan chandbalis and individually hand-painted wearable art tees.
+                </p>
+                <div class="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                    <a href="/shop" class="btn-luxury-gold px-8 py-3.5 rounded-full text-xs uppercase tracking-widest font-bold shadow-lg">
+                        Explore Collection <i class="fa-solid fa-arrow-right ml-1.5"></i>
+                    </a>
+                    <a href="/shop/hand-painted-t-shirts" class="px-7 py-3.5 rounded-full text-xs uppercase tracking-widest font-bold text-gray-800 bg-white border border-rose-200 hover:border-gold hover:text-gold transition shadow-sm">
+                        🎨 Hand-Painted T-Shirts
+                    </a>
+                </div>
+
+                <!-- Trust Points -->
+                <div class="mt-10 pt-6 border-t border-rose-100/80 grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0 text-center lg:text-left">
+                    <div>
+                        <p class="font-serif text-lg font-bold text-gold">100%</p>
+                        <p class="text-[11px] text-gray-500 font-medium">Artisan Handcrafted</p>
+                    </div>
+                    <div>
+                        <p class="font-serif text-lg font-bold text-gold">Free</p>
+                        <p class="text-[11px] text-gray-500 font-medium">Shipping Over ₹999</p>
+                    </div>
+                    <div>
+                        <p class="font-serif text-lg font-bold text-gold">7-Day</p>
+                        <p class="text-[11px] text-gray-500 font-medium">Hassle-Free Return</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Hero Visual Grid -->
+            <div class="lg:col-span-5 relative">
+                <div class="relative mx-auto max-w-md lg:max-w-none">
+                    <!-- Decorative back glow -->
+                    <div class="absolute -top-10 -left-10 w-72 h-72 bg-blush-200 rounded-full blur-3xl opacity-50"></div>
+                    <div class="absolute -bottom-10 -right-10 w-72 h-72 bg-amber-100 rounded-full blur-3xl opacity-50"></div>
+
+                    <!-- Main Hero Image Frame -->
+                    <div class="relative z-10 rounded-2xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/5]">
+                        <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1000&q=80" 
+                             alt="Shubhashtu Royal Kundan Jewellery" 
+                             class="w-full h-full object-cover object-center transform hover:scale-105 transition duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
+                            <div class="text-white">
+                                <span class="bg-gold px-2.5 py-1 rounded text-[10px] font-bold tracking-widest uppercase">Handcrafted Masterpiece</span>
+                                <h3 class="font-serif text-xl font-bold mt-1.5">Royal Kundan & Meenakari Drops</h3>
+                                <p class="text-xs text-rose-100">Intricately crafted for Indian celebrations</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating secondary badge card -->
+                    <div class="absolute -bottom-6 -left-6 z-20 bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl border border-rose-100 flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg overflow-hidden border border-gold/40">
+                            <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=300&q=80" alt="T-Shirt" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-900">Peacock Symphony Tee</p>
+                            <p class="text-[11px] text-emerald-600 font-semibold"><i class="fa-solid fa-fire mr-1"></i> Bestseller of the Week</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- 2. Category Highlights Section -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center max-w-xl mx-auto mb-12">
+            <span class="text-xs uppercase tracking-widest text-gold font-bold">Curated For You</span>
+            <h2 class="font-serif text-3xl sm:text-4xl font-bold text-gray-900 mt-1">Explore Signature Categories</h2>
+            <div class="w-16 h-0.5 bg-gold mx-auto mt-3"></div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            {% for cat in categories %}
+            <a href="/shop/{{ cat.slug }}" class="group relative rounded-xl overflow-hidden aspect-[3/4] shadow-md hover:shadow-xl transition border border-rose-100 bg-gray-50 flex flex-col justify-end p-5">
+                <img src="{{ cat.image_url }}" alt="{{ cat.name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                <div class="relative z-10 text-white">
+                    <h3 class="font-serif text-lg sm:text-xl font-bold group-hover:text-gold-light transition">{{ cat.name }}</h3>
+                    <p class="text-xs text-gray-300 mt-1 line-clamp-1">{{ cat.description }}</p>
+                    <span class="inline-flex items-center text-xs font-semibold text-gold-light mt-2 group-hover:translate-x-1 transition">
+                        Shop Now <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- 3. Featured Products / Best Sellers Grid -->
+<section class="py-16 bg-rose-50/40 border-y border-rose-100">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between mb-10 gap-4">
+            <div>
+                <span class="text-xs uppercase tracking-widest text-gold font-bold">Top Picks</span>
+                <h2 class="font-serif text-3xl font-bold text-gray-900 mt-0.5">Featured & Bestsellers</h2>
+            </div>
+            <a href="/shop" class="text-xs font-bold uppercase tracking-wider text-gold hover:text-gold-dark flex items-center gap-1 group">
+                <span>View Full Catalog</span> <i class="fa-solid fa-arrow-right transition group-hover:translate-x-1"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for product in featured_products %}
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-rose-100 flex flex-col justify-between shadow-sm">
+                
+                <!-- Product Image & Badges -->
+                <div class="product-img-wrapper aspect-square">
+                    <a href="/product/{{ product.slug }}">
+                        <img src="{{ product.primary_image|default('/static/images/logo.jpg') }}" 
+                             alt="{{ product.name }}" 
+                             class="w-full h-full object-cover">
+                    </a>
+
+                    <!-- Badge -->
+                    {% if product.badge %}
+                    <div class="absolute top-3 left-3">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider 
+                            {% if product.badge == 'Bestseller' %}bg-amber-100 text-amber-900 border border-amber-300
+                            {% elif product.badge == 'Trending' %}bg-purple-100 text-purple-900 border border-purple-200
+                            {% elif product.badge == 'New' %}bg-emerald-100 text-emerald-900 border border-emerald-200
+                            {% else %}bg-rose-100 text-rose-900 border border-rose-200{% endif %}">
+                            {{ product.badge }}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Wishlist Toggle Button -->
+                    <button onclick="toggleWishlist({{ product.id }}, this)" 
+                            class="wishlist-btn absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow flex items-center justify-center text-gray-600 hover:text-rose-600 transition" 
+                            title="Add to Wishlist">
+                        <i class="fa-regular fa-heart text-sm"></i>
+                    </button>
+
+                    {% if product.discount_pct > 0 %}
+                    <div class="absolute bottom-3 left-3 bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+                        {{ product.discount_pct }}% OFF
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Product Details -->
+                <div class="p-4 flex flex-col flex-1 justify-between">
+                    <div>
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <span>{{ product.category_name }}</span>
+                            <div class="flex items-center text-amber-500 text-[11px]">
+                                <i class="fa-solid fa-star mr-1"></i>
+                                <span class="font-bold text-gray-700">{{ product.avg_rating }}</span>
+                            </div>
+                        </div>
+
+                        <a href="/product/{{ product.slug }}" class="font-serif text-base font-bold text-gray-900 hover:text-gold line-clamp-1 transition">
+                            {{ product.name }}
+                        </a>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2 font-light">
+                            {{ product.short_description }}
+                        </p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-rose-50 flex items-center justify-between">
+                        <div>
+                            <span class="text-base font-bold text-gray-900">₹{{ "%.2f"|format(product.price) }}</span>
+                            {% if product.mrp > product.price %}
+                            <span class="text-xs text-gray-400 line-through ml-1">₹{{ "%.2f"|format(product.mrp) }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Add to Cart Quick Action -->
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="addToCart({{ product.id }}, 1, '{{ product.sizes_list[0]|default('Free Size') }}')" 
+                                    class="p-2 rounded-full bg-rose-50 hover:bg-gold hover:text-white text-gray-700 transition" 
+                                    title="Add to Bag">
+                                <i class="fa-solid fa-cart-plus text-xs"></i>
+                            </button>
+                            <a href="/product/{{ product.slug }}" 
+                               class="text-xs font-semibold px-3 py-1.5 bg-gray-900 text-white rounded-full hover:bg-gold transition">
+                                View
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- 4. Spotlight: Hand-Painted T-Shirts Wearable Art -->
+<section class="py-20 bg-gradient-to-r from-gray-950 via-gray-900 to-gray-950 text-white relative overflow-hidden">
+    <div class="absolute right-0 top-0 w-96 h-96 bg-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            
+            <div class="lg:col-span-6">
+                <span class="text-xs uppercase tracking-widest text-gold-light font-bold">Exclusive Craftsmanship</span>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold mt-2 leading-tight">
+                    Every T-Shirt is an <br>
+                    <span class="text-gold-gradient italic">Original Canvas.</span>
+                </h2>
+                <p class="mt-5 text-gray-300 text-sm sm:text-base leading-relaxed font-light">
+                    Our Hand-Painted T-Shirts are individually brought to life by master Indian artists using traditional brushwork and permanent metallic fabric acrylics. From dancing royal peacocks to sacred mandalas and majestic Rajasthani elephants — wear heritage wherever you go.
+                </p>
+                <ul class="mt-6 space-y-3 text-xs sm:text-sm text-gray-300">
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-gold"></i> 100% Combed bio-washed organic cotton (220 GSM)
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-gold"></i> Permanent non-fading fabric pigments
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-gold"></i> Individually hand-signed by the artisan
+                    </li>
+                </ul>
+                <div class="mt-8 flex items-center gap-4">
+                    <a href="/shop/hand-painted-t-shirts" class="btn-luxury-gold px-8 py-3.5 rounded-full text-xs uppercase tracking-widest font-bold">
+                        Shop Hand-Painted Tees <i class="fa-solid fa-palette ml-1.5"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="lg:col-span-6 grid grid-cols-2 gap-4">
+                <div class="rounded-xl overflow-hidden shadow-2xl border border-gold/30 aspect-[3/4]">
+                    <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=700&q=80" alt="Peacock Hand-Painted T-Shirt" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                </div>
+                <div class="rounded-xl overflow-hidden shadow-2xl border border-gold/30 aspect-[3/4] mt-6">
+                    <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=700&q=80" alt="Mandala Hand-Painted Tee" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- 5. Brand Heritage & Artisan Story -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto bg-blush-50/60 rounded-3xl p-8 sm:p-12 border border-rose-200/60 text-center relative overflow-hidden">
+            <span class="text-xs uppercase tracking-widest text-gold font-bold">The Shubhashtu Philosophy</span>
+            <h2 class="font-serif text-3xl sm:text-4xl font-bold text-gray-900 mt-2">"Style That Speaks for You."</h2>
+            <div class="w-16 h-0.5 bg-gold mx-auto mt-3 mb-6"></div>
+            <p class="text-sm sm:text-base text-gray-600 leading-relaxed font-light max-w-2xl mx-auto">
+                At Shubhashtu Fashion, we believe fashion is an intimate narrative of identity. Each jewel is set by hand, and every brushstroke tells an ancient story reimagined for modern sensibilities. When you wear Shubhashtu, you carry forward the warmth and pride of Indian artisans.
+            </p>
+            <div class="mt-8 flex items-center justify-center gap-6">
+                <a href="/about" class="btn-luxury-dark px-7 py-3 rounded-full text-xs uppercase tracking-wider">
+                    Read Our Story
+                </a>
+                <a href="/contact" class="btn-luxury-outline px-7 py-3 rounded-full text-xs uppercase tracking-wider font-semibold">
+                    Visit Our Studio
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 6. Verified Customer Reviews -->
+<section class="py-16 bg-rose-50/30 border-t border-rose-100">
+    <div class="container mx-auto px-4">
+        <div class="text-center max-w-xl mx-auto mb-12">
+            <span class="text-xs uppercase tracking-widest text-gold font-bold">Customer Love</span>
+            <h2 class="font-serif text-3xl font-bold text-gray-900 mt-1">Loved by Shoppers Across India</h2>
+            <div class="w-16 h-0.5 bg-gold mx-auto mt-3"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex text-amber-500 text-sm mb-3">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <h4 class="font-serif font-bold text-gray-900 text-base">"Exquisite Royal Chandbalis!"</h4>
+                    <p class="text-xs text-gray-600 mt-2 leading-relaxed font-light">
+                        "These chandbalis are even more gorgeous in person. The blush pink enamel work is so delicate and royal. Received countless compliments at my cousin's sangeet!"
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-gray-900">Radhika Iyer</p>
+                        <p class="text-[10px] text-gray-500">Bengaluru, Karnataka</p>
+                    </div>
+                    <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Verified</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex text-amber-500 text-sm mb-3">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <h4 class="font-serif font-bold text-gray-900 text-base">"Truly Wearable Art!"</h4>
+                    <p class="text-xs text-gray-600 mt-2 leading-relaxed font-light">
+                        "The Peacock tee is pure art! The brushstrokes are so vivid and the cotton fabric is so soft and breathable. Washed it twice and colors remained just as vibrant."
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-gray-900">Pooja Verma</p>
+                        <p class="text-[10px] text-gray-500">Mumbai, Maharashtra</p>
+                    </div>
+                    <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Verified</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex text-amber-500 text-sm mb-3">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <h4 class="font-serif font-bold text-gray-900 text-base">"Heirloom Grade Velvet Potli"</h4>
+                    <p class="text-xs text-gray-600 mt-2 leading-relaxed font-light">
+                        "The velvet feels so plush and royal. Fits my phone and essentials perfectly. Ordered with Cash on Delivery and it arrived neatly packed in 3 days!"
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-gray-900">Sneha Patel</p>
+                        <p class="text-[10px] text-gray-500">Ahmedabad, Gujarat</p>
+                    </div>
+                    <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Verified</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. Instagram Showcase Grid -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4 text-center">
+        <span class="text-xs uppercase tracking-widest text-gold font-bold">@shubhashtufashion</span>
+        <h2 class="font-serif text-2xl sm:text-3xl font-bold text-gray-900 mt-1 mb-8">Follow Us on Instagram</h2>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            <a href="https://instagram.com/shubhashtufashion" target="_blank" class="group relative aspect-square rounded-xl overflow-hidden block">
+                <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=400&q=80" alt="Instagram 1" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xl">
+                    <i class="fa-brands fa-instagram"></i>
+                </div>
+            </a>
+            <a href="https://instagram.com/shubhashtufashion" target="_blank" class="group relative aspect-square rounded-xl overflow-hidden block">
+                <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80" alt="Instagram 2" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xl">
+                    <i class="fa-brands fa-instagram"></i>
+                </div>
+            </a>
+            <a href="https://instagram.com/shubhashtufashion" target="_blank" class="group relative aspect-square rounded-xl overflow-hidden block">
+                <img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=400&q=80" alt="Instagram 3" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xl">
+                    <i class="fa-brands fa-instagram"></i>
+                </div>
+            </a>
+            <a href="https://instagram.com/shubhashtufashion" target="_blank" class="group relative aspect-square rounded-xl overflow-hidden block">
+                <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=400&q=80" alt="Instagram 4" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xl">
+                    <i class="fa-brands fa-instagram"></i>
+                </div>
+            </a>
+            <a href="https://instagram.com/shubhashtufashion" target="_blank" class="group relative aspect-square rounded-xl overflow-hidden block">
+                <img src="https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=400&q=80" alt="Instagram 5" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xl">
+                    <i class="fa-brands fa-instagram"></i>
+                </div>
+            </a>
+            <a href="https://instagram.com/shubhashtufashion" target="_blank" class="group relative aspect-square rounded-xl overflow-hidden block">
+                <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=400&q=80" alt="Instagram 6" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xl">
+                    <i class="fa-brands fa-instagram"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- 8. Guarantees Bar -->
+<section class="py-10 bg-gray-900 text-white border-t border-gold/30">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div class="flex flex-col items-center">
+                <i class="fa-solid fa-truck-fast text-2xl text-gold-light mb-2"></i>
+                <h4 class="text-xs font-bold uppercase tracking-wider">All India Shipping</h4>
+                <p class="text-[11px] text-gray-400 mt-0.5">Free delivery on orders over ₹999</p>
+            </div>
+            <div class="flex flex-col items-center">
+                <i class="fa-solid fa-hand-holding-dollar text-2xl text-gold-light mb-2"></i>
+                <h4 class="text-xs font-bold uppercase tracking-wider">Cash on Delivery</h4>
+                <p class="text-[11px] text-gray-400 mt-0.5">Pay conveniently at your doorstep</p>
+            </div>
+            <div class="flex flex-col items-center">
+                <i class="fa-solid fa-arrow-rotate-left text-2xl text-gold-light mb-2"></i>
+                <h4 class="text-xs font-bold uppercase tracking-wider">7-Day Easy Returns</h4>
+                <p class="text-[11px] text-gray-400 mt-0.5">Hassle-free exchange policy</p>
+            </div>
+            <div class="flex flex-col items-center">
+                <i class="fa-brands fa-whatsapp text-2xl text-emerald-400 mb-2"></i>
+                <h4 class="text-xs font-bold uppercase tracking-wider">1-Click WhatsApp Orders</h4>
+                <p class="text-[11px] text-gray-400 mt-0.5">Pay via UPI QR / GPay / COD</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

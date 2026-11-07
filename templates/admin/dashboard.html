@@ -1,0 +1,187 @@
+{% extends "admin/base_admin.html" %}
+
+{% block header_title %}Store Overview & Metrics{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-8 max-w-7xl mx-auto">
+    
+    <!-- System Setup Notice if Razorpay not configured -->
+    {% if not has_razorpay_keys %}
+    <div class="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-lg flex-shrink-0">
+                <i class="fa-solid fa-credit-card"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-xs text-amber-900 uppercase tracking-wider">Payment Gateway Configuration Pending</h4>
+                <p class="text-xs text-amber-700">Add your Razorpay Key ID and Secret to accept UPI, Cards, and NetBanking. Cash on Delivery is currently active.</p>
+            </div>
+        </div>
+        <a href="/admin/payments" class="btn-luxury-dark px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">
+            Configure Razorpay &rarr;
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- 1. KPI Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        
+        <!-- Total Revenue -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Total Sales</span>
+                <h3 class="font-serif text-2xl font-bold text-gray-900 mt-1">₹{{ "%.2f"|format(metrics.total_sales) }}</h3>
+                <p class="text-[10px] text-emerald-600 font-semibold mt-1"><i class="fa-solid fa-arrow-trend-up"></i> Live Store Sales</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-gold/10 text-gold text-xl flex items-center justify-center">
+                <i class="fa-solid fa-indian-rupee-sign"></i>
+            </div>
+        </div>
+
+        <!-- Total Orders -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Total Orders</span>
+                <h3 class="font-serif text-2xl font-bold text-gray-900 mt-1">{{ metrics.total_orders }}</h3>
+                <p class="text-[10px] text-gray-500 mt-1">{{ metrics.delivered_orders }} Delivered</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 text-xl flex items-center justify-center">
+                <i class="fa-solid fa-boxes-packing"></i>
+            </div>
+        </div>
+
+        <!-- Pending Orders -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Pending Orders</span>
+                <h3 class="font-serif text-2xl font-bold text-gray-900 mt-1">{{ metrics.pending_orders }}</h3>
+                <p class="text-[10px] text-amber-600 font-semibold mt-1">Needs packing / dispatch</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 text-xl flex items-center justify-center">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+        </div>
+
+        <!-- Total Registered Customers -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Customers</span>
+                <h3 class="font-serif text-2xl font-bold text-gray-900 mt-1">{{ metrics.total_customers }}</h3>
+                <p class="text-[10px] text-gray-500 mt-1">Active customer accounts</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 text-xl flex items-center justify-center">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 2. Recent Orders Table -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+            <div>
+                <h3 class="font-serif text-base font-bold text-gray-900">Recent Customer Orders</h3>
+                <p class="text-xs text-gray-500">Latest transactions and dispatch updates</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="exportOrdersToCSV()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 transition">
+                    <i class="fa-solid fa-download mr-1"></i> Export CSV
+                </button>
+                <a href="/admin/orders" class="text-xs text-gold font-semibold hover:underline">
+                    View All Orders &rarr;
+                </a>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border-collapse">
+                <thead class="bg-gray-50 text-gray-600 uppercase tracking-wider font-semibold border-b border-gray-200">
+                    <tr>
+                        <th class="py-3 px-4">Order ID</th>
+                        <th class="py-3 px-4">Customer</th>
+                        <th class="py-3 px-4">Date</th>
+                        <th class="py-3 px-4">Total</th>
+                        <th class="py-3 px-4">Payment</th>
+                        <th class="py-3 px-4">Status</th>
+                        <th class="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for ord in metrics.recent_orders %}
+                    <tr class="hover:bg-rose-50/20 transition">
+                        <td class="py-3 px-4 font-bold text-gray-900">{{ ord.order_number }}</td>
+                        <td class="py-3 px-4">
+                            <span class="font-semibold text-gray-800">{{ ord.customer_name }}</span>
+                            <p class="text-[10px] text-gray-400">{{ ord.customer_phone }}</p>
+                        </td>
+                        <td class="py-3 px-4 text-gray-500">{{ ord.created_at[:10] }}</td>
+                        <td class="py-3 px-4 font-bold text-gray-900">₹{{ "%.2f"|format(ord.total_amount) }}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase 
+                                {% if ord.payment_status == 'paid' %}bg-emerald-100 text-emerald-800
+                                {% else %}bg-amber-100 text-amber-800{% endif %}">
+                                {{ ord.payment_method|upper }} ({{ ord.payment_status }})
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase
+                                {% if ord.order_status == 'Delivered' %}bg-emerald-100 text-emerald-800
+                                {% elif ord.order_status == 'Shipped' %}bg-blue-100 text-blue-800
+                                {% else %}bg-amber-100 text-amber-800{% endif %}">
+                                {{ ord.order_status }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <a href="/admin/orders/{{ ord.id }}" class="btn-luxury-dark px-3 py-1 rounded-lg text-[11px] font-semibold">
+                                Manage
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. Store Configuration Quick Access -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <a href="/admin/shipping" class="p-5 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-gold transition group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gold/10 text-gold flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-truck-ramp-box"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-gray-900 group-hover:text-gold transition">Delivery Rules</h4>
+                    <p class="text-[11px] text-gray-500">Standard fee, free shipping limit, Shiprocket</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="/admin/payments" class="p-5 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-gold transition group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gold/10 text-gold flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-credit-card"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-gray-900 group-hover:text-gold transition">Payment Gateway</h4>
+                    <p class="text-[11px] text-gray-500">Razorpay keys & Cash on Delivery toggle</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="/admin/coupons" class="p-5 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-gold transition group">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gold/10 text-gold flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-tags"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-gray-900 group-hover:text-gold transition">Coupons & Offers</h4>
+                    <p class="text-[11px] text-gray-500">Create discount codes and limits</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+

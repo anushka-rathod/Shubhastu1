@@ -1,0 +1,62 @@
+{% extends "admin/base_admin.html" %}
+
+{% block header_title %}Customer Reviews ({{ reviews|length }}){% endblock %}
+
+{% block admin_content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-200">
+            <h3 class="font-serif text-base font-bold text-gray-900">Product Reviews Moderation</h3>
+            <p class="text-xs text-gray-500">Approve or hide customer reviews displayed on product pages</p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border-collapse">
+                <thead class="bg-gray-50 text-gray-600 uppercase tracking-wider font-semibold border-b border-gray-200">
+                    <tr>
+                        <th class="py-3 px-4">Product</th>
+                        <th class="py-3 px-4">Customer</th>
+                        <th class="py-3 px-4">Rating</th>
+                        <th class="py-3 px-4">Review Content</th>
+                        <th class="py-3 px-4">Status</th>
+                        <th class="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for r in reviews %}
+                    <tr class="hover:bg-rose-50/20 transition">
+                        <td class="py-3 px-4 font-bold text-gray-900">
+                            <a href="/product/{{ r.product_slug }}" target="_blank" class="hover:text-gold line-clamp-1">
+                                {{ r.product_name }}
+                            </a>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="font-semibold text-gray-800">{{ r.customer_name }}</span>
+                            <p class="text-[10px] text-gray-400">{{ r.customer_email }}</p>
+                        </td>
+                        <td class="py-3 px-4 text-amber-500 font-bold">
+                            {{ r.rating }} ⭐
+                        </td>
+                        <td class="py-3 px-4 text-gray-600 max-w-xs">
+                            {% if r.title %}<strong>{{ r.title }}</strong><br>{% endif %}
+                            <span class="line-clamp-2">{{ r.comment }}</span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <button onclick="toggleReviewApproval({{ r.id }})" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase {% if r.is_approved %}bg-emerald-100 text-emerald-800{% else %}bg-amber-100 text-amber-800{% endif %}">
+                                {{ 'Approved' if r.is_approved else 'Pending' }}
+                            </button>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="deleteReview({{ r.id }})" class="text-rose-500 hover:text-rose-700 font-semibold">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ store_settings.store_name|default('Shubhashtu Fashion') }} | {{ store_settings.tagline|default('Style That Speaks for You.') }}{% endblock %}</title>
+    <meta name="description" content="Shop handcrafted Indian fashion, bespoke earrings, hand-painted cotton t-shirts, and regal ethnic wear at Shubhashtu Fashion. All India Shipping & COD Available.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="/static/images/logo.jpg">
+
+    <!-- Performance Optimizations: Preconnect & DNS-Prefetch -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="dns-prefetch" href="https://checkout.razorpay.com">
+
+    <!-- Preload Critical Luxury Stylesheet (Prevents FOUC & CLS) -->
+    <link rel="preload" href="/static/css/custom.css" as="style">
+    <link rel="stylesheet" href="/static/css/custom.css">
+
+    <!-- FontAwesome 6 Icons (Async non-blocking) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+
+    <!-- Optimized Tailwind CSS with Inlined Palette Config -->
+    <script>
+        tailwind = {
+            config: {
+                theme: {
+                    extend: {
+                        colors: {
+                            gold: {
+                                DEFAULT: '#c59b27',
+                                light: '#dfb746',
+                                dark: '#9e7817'
+                            },
+                            blush: {
+                                50: '#fdf2f4',
+                                100: '#fce7ec',
+                                200: '#f7cbd6',
+                                300: '#f3b0bf',
+                                400: '#e68297',
+                                500: '#d75d78',
+                                600: '#c54a65',
+                                700: '#9d324b',
+                                800: '#7e2a3e',
+                                900: '#5c1f2e'
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Store WhatsApp Global Setting -->
+    <script>
+        window.STORE_WHATSAPP = "{{ store_settings.support_whatsapp|default('919876543210') }}";
+    </script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-white text-gray-900 flex flex-col min-h-screen">
+
+    <!-- 1. Top Announcement Marquee -->
+    <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-gold-light text-xs py-2 px-4 text-center font-medium tracking-wider uppercase border-b border-gold/30">
+        <div class="container mx-auto flex items-center justify-between">
+            <span class="hidden md:inline-block text-gray-300">
+                <i class="fa-solid fa-phone mr-1"></i> Support: {{ store_settings.support_phone|default('+91 98765 43210') }}
+            </span>
+            <div class="flex-1 text-center font-semibold">
+                {{ store_settings.announcement_bar|default('✨ FREE Shipping Across India on Orders Above ₹999 | Use Code WELCOME10 for 10% OFF ✨') }}
+            </div>
+            <div class="hidden md:flex items-center gap-4 text-gray-300">
+                <a href="/track-order" class="hover:text-gold transition"><i class="fa-solid fa-truck-fast mr-1"></i> Track Order</a>
+                <span>|</span>
+                <a href="https://wa.me/{{ store_settings.support_whatsapp|default('919876543210') }}" target="_blank" class="hover:text-gold transition">
+                    <i class="fa-brands fa-whatsapp text-emerald-400 mr-1"></i> WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Main Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-rose-100 shadow-sm transition">
+        <div class="container mx-auto px-4 py-3 sm:py-4">
+            <div class="flex items-center justify-between gap-4">
+                
+                <!-- Mobile Hamburger Button -->
+                <button onclick="toggleMobileNav()" class="lg:hidden p-2 text-gray-700 hover:text-gold focus:outline-none" aria-label="Open Menu">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+
+                <!-- Brand Logo & Name -->
+                <a href="/" class="flex items-center gap-3 group">
+                    <img src="/static/images/logo.jpg" alt="Shubhashtu Fashion" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gold/40 shadow-sm object-cover group-hover:scale-105 transition">
+                    <div class="flex flex-col">
+                        <span class="font-serif text-xl sm:text-2xl font-bold tracking-wider text-gray-900 group-hover:text-gold transition uppercase">
+                            Shubhashtu
+                        </span>
+                        <span class="text-[10px] tracking-[0.25em] text-gold-dark font-medium -mt-1 uppercase">Fashion</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Live Search Bar -->
+                <div id="search-wrapper" class="relative hidden md:block flex-1 max-w-md mx-6">
+                    <div class="relative">
+                        <input type="text" 
+                               id="header-search-input" 
+                               oninput="handleLiveSearch(this)" 
+                               placeholder="Search for earrings, hand-painted t-shirts, kurtis..." 
+                               class="w-full pl-10 pr-4 py-2 text-sm bg-rose-50/50 border border-rose-200 rounded-full focus:outline-none focus:border-gold focus:bg-white focus:ring-1 focus:ring-gold transition">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <!-- Predictive Results Dropdown -->
+                    <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-2xl border border-rose-100 overflow-hidden z-50 max-h-96 overflow-y-auto"></div>
+                </div>
+
+                <!-- Header Actions (Wishlist, Account, Cart) -->
+                <div class="flex items-center gap-3 sm:gap-5">
+                    
+                    <!-- Search Icon for Mobile -->
+                    <a href="/shop" class="md:hidden p-2 text-gray-700 hover:text-gold transition">
+                        <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                    </a>
+
+                    <!-- Wishlist Icon -->
+                    <a href="/wishlist" class="relative p-2 text-gray-700 hover:text-rose-600 transition" title="Wishlist">
+                        <i class="fa-regular fa-heart text-xl"></i>
+                        <span class="wishlist-badge-count absolute top-0 right-0 bg-rose-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                    </a>
+
+                    <!-- Admin Quick Access Badge -->
+                    {% if current_user and current_user.role == 'admin' %}
+                    <a href="/admin" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-900 border border-amber-300 rounded-full text-xs font-bold hover:bg-amber-100 transition shadow-xs" title="Open Admin Dashboard">
+                        <i class="fa-solid fa-shield-halved text-amber-600"></i>
+                        <span>Admin</span>
+                    </a>
+                    {% endif %}
+
+                    <!-- Customer Account / Auth -->
+                    <div class="relative group">
+                        {% if current_user %}
+                            <a href="/profile" class="flex items-center gap-1.5 p-2 text-gray-800 hover:text-gold transition" title="My Account">
+                                <i class="fa-regular fa-user text-xl"></i>
+                                <span class="hidden lg:inline text-xs font-semibold">{{ current_user.full_name.split()[0] }}</span>
+                            </a>
+                            <div class="absolute right-0 top-full mt-1 w-48 bg-white border border-rose-100 rounded-xl shadow-xl py-2 hidden group-hover:block z-50">
+                                <div class="px-4 py-2 border-b border-gray-100">
+                                    <p class="text-xs text-gray-500">Signed in as</p>
+                                    <p class="text-xs font-bold text-gray-900 truncate">{{ current_user.email }}</p>
+                                </div>
+                                {% if current_user.role == 'admin' %}
+                                    <a href="/admin" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-gold-dark hover:bg-rose-50 transition">
+                                        <i class="fa-solid fa-gauge-high"></i> Admin Dashboard
+                                    </a>
+                                {% endif %}
+                                <a href="/profile" class="flex items-center gap-2 px-4 py-2 text-xs text-gray-700 hover:bg-rose-50 transition">
+                                    <i class="fa-regular fa-id-badge"></i> My Profile & Orders
+                                </a>
+                                <a href="/track-order" class="flex items-center gap-2 px-4 py-2 text-xs text-gray-700 hover:bg-rose-50 transition">
+                                    <i class="fa-solid fa-truck-fast"></i> Track Order
+                                </a>
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <a href="/logout" class="flex items-center gap-2 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 transition">
+                                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                                </a>
+                            </div>
+                        {% else %}
+                            <a href="/login" class="flex items-center gap-1.5 p-2 text-gray-800 hover:text-gold transition" title="Sign In">
+                                <i class="fa-regular fa-user text-xl"></i>
+                                <span class="hidden lg:inline text-xs font-semibold">Sign In</span>
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Cart Trigger Button -->
+                    <button onclick="toggleCartDrawer(true)" class="relative flex items-center gap-2 bg-gradient-to-r from-gray-900 to-gray-800 text-white px-3.5 py-2 rounded-full hover:from-gold hover:to-gold-light transition shadow-sm group" aria-label="Shopping Bag">
+                        <i class="fa-solid fa-bag-shopping text-sm text-gold-light group-hover:text-white transition"></i>
+                        <span class="text-xs font-bold hidden sm:inline">Bag</span>
+                        <span class="cart-badge-count bg-rose-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full inline-flex items-center justify-center">
+                            {{ cart_count|default(0) }}
+                        </span>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Desktop Category Navigation Bar -->
+            <nav class="hidden lg:flex items-center justify-center gap-8 mt-3 pt-3 border-t border-rose-50 text-sm font-medium tracking-wide">
+                <a href="/" class="hover:text-gold transition py-1 text-gray-900">Home</a>
+                <a href="/shop" class="hover:text-gold transition py-1 text-gray-700">Shop All</a>
+                <a href="/shop/earrings" class="hover:text-gold transition py-1 text-gray-700 flex items-center gap-1">
+                    Earrings
+                </a>
+                <a href="/shop/hand-painted-t-shirts" class="hover:text-gold transition py-1 text-gray-700 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Hand-Painted T-Shirts
+                </a>
+                <a href="/shop/ethnic-and-kurtis" class="hover:text-gold transition py-1 text-gray-700">Ethnic & Kurtis</a>
+                <a href="/shop/accessories" class="hover:text-gold transition py-1 text-gray-700">Accessories</a>
+                <a href="/shop?badge=New" class="hover:text-gold transition py-1 text-gold-dark font-semibold">New Arrivals</a>
+                <a href="/shop?badge=Sale" class="hover:text-rose-600 transition py-1 text-rose-600 font-semibold">Offers %</a>
+                <a href="/about" class="hover:text-gold transition py-1 text-gray-600">Our Story</a>
+                <a href="/contact" class="hover:text-gold transition py-1 text-gray-600">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav-backdrop" onclick="toggleMobileNav()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity"></div>
+    <div id="mobile-nav-drawer" class="fixed top-0 bottom-0 left-0 w-80 max-w-full bg-white z-50 -translate-x-full transition-transform shadow-2xl flex flex-col">
+        <div class="p-4 border-b border-rose-100 flex items-center justify-between bg-rose-50/50">
+            <div class="flex items-center gap-2.5">
+                <img src="/static/images/logo.jpg" alt="Shubhashtu" class="w-8 h-8 rounded-full border border-gold">
+                <span class="font-serif font-bold text-lg uppercase tracking-wider text-gray-900">Shubhashtu</span>
+            </div>
+            <button onclick="toggleMobileNav()" class="p-2 text-gray-500 hover:text-gray-800">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <div class="p-4 border-b border-gray-100">
+            <input type="text" oninput="handleLiveSearch(this)" placeholder="Search products..." class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg">
+        </div>
+        <div class="flex-1 overflow-y-auto py-2">
+            <nav class="flex flex-col text-sm font-medium">
+                <a href="/" class="px-5 py-3 hover:bg-rose-50 text-gray-900 border-b border-gray-50">Home</a>
+                <a href="/shop" class="px-5 py-3 hover:bg-rose-50 text-gray-800 border-b border-gray-50">Shop All Collection</a>
+                <a href="/shop/earrings" class="px-5 py-3 hover:bg-rose-50 text-gray-800 border-b border-gray-50 flex items-center justify-between">
+                    <span>✨ Earrings & Jhumkas</span> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+                </a>
+                <a href="/shop/hand-painted-t-shirts" class="px-5 py-3 hover:bg-rose-50 text-rose-700 font-semibold border-b border-gray-50 flex items-center justify-between">
+                    <span>🎨 Hand-Painted T-Shirts</span> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+                </a>
+                <a href="/shop/ethnic-and-kurtis" class="px-5 py-3 hover:bg-rose-50 text-gray-800 border-b border-gray-50 flex items-center justify-between">
+                    <span>👑 Ethnic Wear & Kurtis</span> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+                </a>
+                <a href="/shop/accessories" class="px-5 py-3 hover:bg-rose-50 text-gray-800 border-b border-gray-50 flex items-center justify-between">
+                    <span>👜 Accessories & Potlis</span> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+                </a>
+                <a href="/shop?badge=New" class="px-5 py-3 hover:bg-rose-50 text-gold-dark font-semibold border-b border-gray-50">New Arrivals</a>
+                <a href="/shop?badge=Sale" class="px-5 py-3 hover:bg-rose-50 text-rose-600 font-semibold border-b border-gray-50">Special Offers %</a>
+                <a href="/track-order" class="px-5 py-3 hover:bg-rose-50 text-gray-700 border-b border-gray-50">Track Your Order</a>
+                <a href="/about" class="px-5 py-3 hover:bg-rose-50 text-gray-700 border-b border-gray-50">About Shubhashtu</a>
+                <a href="/contact" class="px-5 py-3 hover:bg-rose-50 text-gray-700">Contact Us</a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-rose-100 bg-rose-50/30">
+            {% if current_user %}
+                <a href="/profile" class="block w-full py-2.5 text-center text-sm font-semibold bg-gray-900 text-white rounded-lg">My Account</a>
+            {% else %}
+                <a href="/login" class="block w-full py-2.5 text-center text-sm font-semibold bg-gold text-white rounded-lg">Sign In / Register</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 3. Mini Cart Slide-over Drawer -->
+    <div id="cart-drawer-backdrop" onclick="toggleCartDrawer(false)" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity"></div>
+    <div id="cart-drawer" class="fixed top-0 bottom-0 right-0 w-96 max-w-full bg-white z-50 translate-x-full transition-transform shadow-2xl flex flex-col">
+        <!-- Drawer Header -->
+        <div class="p-4 border-b border-rose-100 flex items-center justify-between bg-rose-50/50">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bag-shopping text-gold text-lg"></i>
+                <h3 class="font-serif text-lg font-bold text-gray-900">Your Shopping Bag</h3>
+            </div>
+            <button onclick="toggleCartDrawer(false)" class="p-2 text-gray-400 hover:text-gray-700">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Free Delivery Progress Bar -->
+        <div class="px-4 py-3 bg-blush-50 border-b border-rose-100">
+            <div class="flex items-center justify-between text-xs text-gray-700 mb-1.5" id="free-shipping-text">
+                Add more items to get <strong>FREE Delivery</strong>!
+            </div>
+            <div class="w-full bg-rose-200/80 rounded-full h-2 overflow-hidden">
+                <div id="free-shipping-progress" class="bg-gradient-to-r from-gold to-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- Cart Items Scrollable List -->
+        <div id="cart-drawer-items" class="flex-1 overflow-y-auto divide-y divide-rose-50"></div>
+
+        <!-- Empty Cart Notice -->
+        <div id="cart-drawer-empty" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div class="w-20 h-20 rounded-full bg-rose-50 flex items-center justify-center text-gold text-3xl mb-4">
+                <i class="fa-solid fa-basket-shopping"></i>
+            </div>
+            <h4 class="font-serif text-lg font-bold text-gray-900">Your bag is empty</h4>
+            <p class="text-xs text-gray-500 mt-1 max-w-xs">Discover our handcrafted Indian jewellery and wearable art collections today.</p>
+            <a href="/shop" onclick="toggleCartDrawer(false)" class="mt-5 btn-luxury-gold px-6 py-2.5 rounded-full text-xs uppercase tracking-wider">
+                Start Shopping
+            </a>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div id="cart-drawer-footer" class="p-4 border-t border-rose-100 bg-white shadow-inner">
+            <div class="flex items-center justify-between text-sm mb-1">
+                <span class="text-gray-500">Subtotal</span>
+                <span id="cart-drawer-subtotal" class="font-bold text-gray-900">₹0.00</span>
+            </div>
+            <p id="cart-drawer-savings" class="text-xs text-emerald-600 font-semibold mb-3"></p>
+            <p class="text-[11px] text-gray-500 mb-4">Taxes and delivery calculated at checkout.</p>
+            <div class="space-y-2">
+                <button type="button" 
+                        onclick="checkoutBagViaWhatsApp()" 
+                        class="w-full py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01]">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> Complete Order on WhatsApp
+                </button>
+                <a href="/cart" onclick="toggleCartDrawer(false)" class="block text-center text-xs font-semibold text-gray-500 hover:text-gold transition pt-1">
+                    <i class="fa-solid fa-bag-shopping text-xs mr-1"></i> View Detailed Bag
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Floating WhatsApp Concierge Widget (1-Click Instant Sales & Styling) - Bottom Left -->
+    <div class="fixed bottom-20 sm:bottom-6 left-3.5 sm:left-6 z-30 flex items-center gap-2 group">
+        <a href="https://wa.me/{{ store_settings.support_whatsapp|default('919876543210') }}?text={{ 'Namaste Shubhashtu Fashion! I would love some styling advice or help with an order.'|urlencode }}" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center shadow-xl hover:shadow-2xl transition transform hover:scale-110" 
+           title="Chat with Stylist on WhatsApp"
+           aria-label="Chat with Stylist on WhatsApp">
+            <span class="absolute -inset-1 rounded-full bg-[#25D366] opacity-30 animate-ping"></span>
+            <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl relative z-10"></i>
+        </a>
+        <a href="https://wa.me/{{ store_settings.support_whatsapp|default('919876543210') }}?text={{ 'Namaste Shubhashtu Fashion! I would love some styling advice or help with an order.'|urlencode }}" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-emerald-200 text-gray-800 text-xs font-semibold shadow-lg hover:border-emerald-500 hover:text-emerald-700 transition transform hover:translate-x-0.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Chat with Stylist 🙏</span>
+        </a>
+    </div>
+
+    <!-- Floating AI Stylist Concierge Button - Bottom Right -->
+    <button id="aiStylistBtn" onclick="toggleAiStylist()" class="ai-stylist-float" title="Ask Shubhashtu AI Stylist">
+        <i class="fa-solid fa-wand-magic-sparkles text-gold animate-bounce"></i>
+        <span class="hidden sm:inline">Ask AI Stylist</span>
+    </button>
+
+    <!-- AI Stylist Chat Drawer -->
+    <div id="aiStylistDrawer" class="fixed bottom-20 right-4 sm:right-6 z-50 w-[92vw] sm:w-[420px] h-[580px] bg-white rounded-3xl shadow-2xl border border-gold/40 flex flex-col overflow-hidden transition-all duration-300 transform translate-y-12 opacity-0 pointer-events-none">
+        <!-- Header -->
+        <div class="bg-gray-950 p-4 border-b border-gold/30 flex items-center justify-between text-white flex-shrink-0">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-gold/20 border border-gold flex items-center justify-center text-gold text-xs shadow-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                    <h3 class="font-serif font-bold text-xs uppercase tracking-wider text-white">Shubhashtu AI Stylist</h3>
+                    <p class="text-[9px] text-gold-light tracking-widest uppercase font-semibold">Powered by Vercel AI SDK</p>
+                </div>
+            </div>
+            <button onclick="toggleAiStylist(false)" class="text-gray-400 hover:text-white text-sm p-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Chat Messages Area -->
+        <div id="aiChatMessages" class="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs bg-[#fdfafb]">
+            <!-- Initial Greeting -->
+            <div class="flex items-start gap-2.5">
+                <div class="w-6 h-6 rounded-full bg-gold/20 border border-gold flex-shrink-0 flex items-center justify-center text-gold text-[10px]">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl rounded-tl-none border border-rose-100 shadow-2xs max-w-[85%] text-gray-800 leading-relaxed">
+                    <p class="font-semibold text-gray-900 mb-1">Namaste! 🙏 Welcome to Shubhashtu Fashion.</p>
+                    <p class="font-light text-gray-600">I am your personal AI Stylist & Concierge. How may I assist you with jewelry styling, hand-painted tees, delivery, or tracking today?</p>
+                </div>
+            </div>
+
+            <!-- Quick Action Chips -->
+            <div id="aiQuickChips" class="flex flex-wrap gap-1.5 pt-1 pl-8">
+                <button type="button" onclick="handleQuickChip(this)" class="px-2.5 py-1 rounded-full bg-white border border-rose-200 text-gray-700 text-[11px] font-medium hover:border-gold hover:text-gold transition shadow-2xs">
+                    ✨ Recommend earrings for festive wear
+                </button>
+                <button type="button" onclick="handleQuickChip(this)" class="px-2.5 py-1 rounded-full bg-white border border-rose-200 text-gray-700 text-[11px] font-medium hover:border-gold hover:text-gold transition shadow-2xs">
+                    🎨 Best-selling hand-painted tees
+                </button>
+                <button type="button" onclick="handleQuickChip(this)" class="px-2.5 py-1 rounded-full bg-white border border-rose-200 text-gray-700 text-[11px] font-medium hover:border-gold hover:text-gold transition shadow-2xs">
+                    🏷️ Available discount coupons
+                </button>
+                <button type="button" onclick="handleQuickChip(this)" class="px-2.5 py-1 rounded-full bg-white border border-rose-200 text-gray-700 text-[11px] font-medium hover:border-gold hover:text-gold transition shadow-2xs">
+                    📦 Track order SHB-2026-1001
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Input Footer -->
+        <div class="p-3 bg-white border-t border-rose-100 flex-shrink-0">
+            <form onsubmit="handleAiChatSubmit(event)" class="flex items-center gap-2">
+                <input type="text" id="aiChatInput" placeholder="Ask about styling, jhumkas, tees, order..." autocomplete="off" class="flex-1 px-3.5 py-2 text-xs border border-gray-200 rounded-full focus:outline-none focus:border-gold shadow-inner bg-gray-50 focus:bg-white">
+                <button type="submit" class="w-8 h-8 rounded-full bg-gray-950 hover:bg-gold text-white flex items-center justify-center transition shadow flex-shrink-0">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+            <div class="flex items-center justify-between text-[10px] text-gray-400 mt-1.5 px-2">
+                <span>Vercel AI SDK Tool-Calling Agent</span>
+                <span>Fast & Accurate</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- 4. Luxury Footer -->
+    <footer class="bg-gray-950 text-gray-300 pt-16 pb-8 border-t-2 border-gold/40">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-gray-800">
+                
+                <!-- Brand Story -->
+                <div class="lg:col-span-2">
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="/static/images/logo.jpg" alt="Shubhashtu Fashion" class="w-10 h-10 rounded-full border border-gold">
+                        <span class="font-serif text-2xl font-bold tracking-wider text-white uppercase">Shubhashtu</span>
+                    </div>
+                    <p class="text-gold-light italic text-sm font-serif mb-3">"{{ store_settings.tagline|default('Style That Speaks for You.') }}"</p>
+                    <p class="text-xs text-gray-400 leading-relaxed max-w-sm mb-6">
+                        Shubhashtu Fashion is a luxury Indian fashion house dedicated to preserving traditional artisanal craftsmanship. From intricately carved Meenakari earrings to wearable art on hand-painted organic cotton, we curate timeless style for the modern connoisseur.
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <a href="https://instagram.com/shubhashtufashion" target="_blank" class="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center text-gray-300 hover:text-gold hover:bg-gray-800 transition">
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+                        <a href="https://wa.me/{{ store_settings.support_whatsapp|default('919876543210') }}" target="_blank" class="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center text-gray-300 hover:text-emerald-400 hover:bg-gray-800 transition">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </a>
+                        <a href="mailto:{{ store_settings.support_email|default('care@shubhashtufashion.com') }}" class="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center text-gray-300 hover:text-gold hover:bg-gray-800 transition">
+                            <i class="fa-regular fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Collections -->
+                <div>
+                    <h4 class="font-serif text-sm font-bold uppercase tracking-wider text-white mb-4 border-l-2 border-gold pl-2">Collections</h4>
+                    <ul class="space-y-2.5 text-xs">
+                        <li><a href="/shop/earrings" class="hover:text-gold transition">Jhumkas & Chandbalis</a></li>
+                        <li><a href="/shop/hand-painted-t-shirts" class="hover:text-gold transition text-rose-300">Hand-Painted T-Shirts</a></li>
+                        <li><a href="/shop/ethnic-and-kurtis" class="hover:text-gold transition">Chikankari & Silk Sets</a></li>
+                        <li><a href="/shop/accessories" class="hover:text-gold transition">Handcrafted Potlis & Chokers</a></li>
+                        <li><a href="/shop?badge=New" class="hover:text-gold transition">New Arrivals</a></li>
+                        <li><a href="/shop?badge=Bestseller" class="hover:text-gold transition">Bestsellers</a></li>
+                    </ul>
+                </div>
+
+                <!-- Customer Care -->
+                <div>
+                    <h4 class="font-serif text-sm font-bold uppercase tracking-wider text-white mb-4 border-l-2 border-gold pl-2">Customer Care</h4>
+                    <ul class="space-y-2.5 text-xs">
+                        <li><a href="/track-order" class="hover:text-gold transition">Track Your Order</a></li>
+                        <li><a href="/profile" class="hover:text-gold transition">My Account</a></li>
+                        <li><a href="/cart" class="hover:text-gold transition">Shopping Bag</a></li>
+                        <li><a href="/policies#shipping" class="hover:text-gold transition">Shipping & Delivery</a></li>
+                        <li><a href="/policies#returns" class="hover:text-gold transition">Returns & Exchanges</a></li>
+                        <li><a href="/contact" class="hover:text-gold transition">Contact Support</a></li>
+                    </ul>
+                </div>
+
+                <!-- Policies & Studio -->
+                <div>
+                    <h4 class="font-serif text-sm font-bold uppercase tracking-wider text-white mb-4 border-l-2 border-gold pl-2">Store & Legal</h4>
+                    <ul class="space-y-2.5 text-xs mb-4">
+                        <li><a href="/about" class="hover:text-gold transition">Our Story</a></li>
+                        <li><a href="/policies#privacy" class="hover:text-gold transition">Privacy Policy</a></li>
+                        <li><a href="/policies#terms" class="hover:text-gold transition">Terms of Service</a></li>
+                    </ul>
+                    <div class="text-[11px] text-gray-400 leading-normal">
+                        <p class="font-semibold text-gray-300">Shubhashtu Studio</p>
+                        <p class="mt-1">{{ store_settings.store_address|default('Heritage Galleria, Bengaluru, Karnataka') }}</p>
+                        <p class="mt-1 text-gold">📞 {{ store_settings.support_phone|default('+91 98765 43210') }}</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Row: Payment Badges & Copyright -->
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+                <p>&copy; 2026 Shubhashtu Fashion. All Rights Reserved. Handcrafted with love in India.</p>
+                <div class="flex items-center gap-3 text-sm text-gray-400">
+                    <span class="text-[11px] uppercase tracking-wider">Secured by</span>
+                    <span class="font-bold text-white px-2 py-0.5 rounded bg-gray-900 border border-gray-800">Razorpay</span>
+                    <span>•</span>
+                    <span>UPI</span>
+                    <span>•</span>
+                    <span>Cards</span>
+                    <span>•</span>
+                    <span>NetBanking</span>
+                    <span>•</span>
+                    <span>COD</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Main JS Scripts -->
+    <script src="/static/js/main.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+

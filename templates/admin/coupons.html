@@ -1,0 +1,113 @@
+{% extends "admin/base_admin.html" %}
+
+{% block header_title %}Coupons & Promotional Offers{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Left: Existing Coupons -->
+    <div class="lg:col-span-8 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-200">
+            <h3 class="font-serif text-base font-bold text-gray-900">Active Coupons</h3>
+            <p class="text-xs text-gray-500">Manage promotional codes, minimum order criteria, and discount limits</p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border-collapse">
+                <thead class="bg-gray-50 text-gray-600 uppercase tracking-wider font-semibold border-b border-gray-200">
+                    <tr>
+                        <th class="py-3 px-4">Coupon Code</th>
+                        <th class="py-3 px-4">Discount</th>
+                        <th class="py-3 px-4">Min. Order</th>
+                        <th class="py-3 px-4">Usage</th>
+                        <th class="py-3 px-4">Status</th>
+                        <th class="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for c in coupons %}
+                    <tr class="hover:bg-rose-50/20 transition">
+                        <td class="py-3 px-4">
+                            <span class="font-bold text-gray-900 font-mono text-sm">{{ c.code }}</span>
+                            <p class="text-[10px] text-gray-400">{{ c.description }}</p>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-gray-800">
+                            {% if c.discount_type == 'percentage' %}
+                            {{ c.discount_value }}% OFF
+                            {% else %}
+                            ₹{{ "%.2f"|format(c.discount_value) }} FLAT
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-gray-600">₹{{ "%.2f"|format(c.min_order_value) }}</td>
+                        <td class="py-3 px-4 text-gray-600">{{ c.usage_count }} used</td>
+                        <td class="py-3 px-4">
+                            <button onclick="toggleCoupon({{ c.id }})" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase {% if c.is_active %}bg-emerald-100 text-emerald-800{% else %}bg-gray-100 text-gray-600{% endif %}">
+                                {{ 'Active' if c.is_active else 'Disabled' }}
+                            </button>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="deleteCoupon({{ c.id }})" class="text-rose-500 hover:text-rose-700 font-semibold">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Right: Create New Coupon Form -->
+    <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 text-xs">
+        <h3 class="font-serif text-base font-bold text-gray-900 pb-3 border-b border-gray-100">Create New Coupon</h3>
+
+        <form method="POST" action="/admin/coupons/new" class="space-y-3">
+            <div>
+                <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1">Coupon Code *</label>
+                <input type="text" name="code" required placeholder="e.g. FESTIVE25" class="w-full px-3 py-2 border rounded-lg uppercase font-mono font-bold">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1">Discount Type *</label>
+                    <select name="discount_type" class="w-full px-3 py-2 border rounded-lg">
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount (₹)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1">Discount Value *</label>
+                    <input type="number" step="0.01" name="discount_value" required placeholder="10 or 500" class="w-full px-3 py-2 border rounded-lg font-bold">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1">Min. Order (₹)</label>
+                    <input type="number" step="0.01" name="min_order_value" value="0" class="w-full px-3 py-2 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1">Max Discount Cap (₹)</label>
+                    <input type="number" step="0.01" name="max_discount" placeholder="Optional" class="w-full px-3 py-2 border rounded-lg">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1">Description / Campaign</label>
+                <input type="text" name="description" placeholder="e.g. Diwali festive 20% discount" class="w-full px-3 py-2 border rounded-lg">
+            </div>
+
+            <div>
+                <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1">Usage Limit</label>
+                <input type="number" name="usage_limit" placeholder="e.g. 500 (Leave empty for unlimited)" class="w-full px-3 py-2 border rounded-lg">
+            </div>
+
+            <button type="submit" class="w-full btn-luxury-gold py-2.5 rounded-lg uppercase tracking-wider font-bold">
+                Create Coupon
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
+

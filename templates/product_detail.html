@@ -1,0 +1,580 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | Shubhashtu Fashion{% endblock %}
+
+{% block extra_head %}
+<!-- Google Schema.org JSON-LD for Rich Product Snippets -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.name }}",
+  "image": [
+    "{{ product.primary_image }}"
+  ],
+  "description": "{{ product.short_description|escape }}",
+  "sku": "{{ product.sku }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "{{ store_settings.store_name|default('Shubhashtu Fashion') }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.path }}",
+    "priceCurrency": "INR",
+    "price": "{{ '%.2f'|format(product.price) }}",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": "{% if product.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ product.avg_rating }}",
+    "reviewCount": "{{ product.review_count|default(1) }}"
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<div class="bg-rose-50/50 py-3 border-b border-rose-100 text-xs">
+    <div class="container mx-auto px-4 flex items-center gap-2 text-gray-500">
+        <a href="/" class="hover:text-gold">Home</a>
+        <span>/</span>
+        <a href="/shop" class="hover:text-gold">Shop</a>
+        <span>/</span>
+        <a href="/shop/{{ product.category_slug }}" class="hover:text-gold">{{ product.category_name }}</a>
+        <span>/</span>
+        <span class="text-gray-900 font-semibold truncate">{{ product.name }}</span>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-10 pb-32 md:pb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        
+        <!-- Left: Product Image Gallery -->
+        <div class="lg:col-span-6">
+            <div class="sticky top-28 space-y-4">
+                <!-- Main Featured High-Res Image -->
+                <div class="rounded-2xl overflow-hidden border border-rose-100 bg-gray-50 aspect-square shadow-sm relative">
+                    <img id="main-product-image" 
+                         src="{{ product.primary_image|default('/static/images/logo.jpg') }}" 
+                         alt="{{ product.name }}" 
+                         class="w-full h-full object-cover transition duration-300">
+                    
+                    {% if product.badge %}
+                    <span class="absolute top-4 left-4 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded shadow">
+                        {{ product.badge }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Thumbnails Gallery -->
+                {% if product.images|length > 1 %}
+                <div class="flex items-center gap-3 overflow-x-auto pb-2">
+                    {% for img in product.images %}
+                    <button type="button" 
+                            onclick="swapMainImage('{{ img.image_url }}', this)" 
+                            class="thumb-btn w-20 h-20 rounded-xl overflow-hidden border-2 {% if loop.first %}border-gold{% else %}border-transparent hover:border-rose-300{% endif %} flex-shrink-0 transition">
+                        <img src="{{ img.image_url }}" alt="Thumbnail {{ loop.index }}" class="w-full h-full object-cover">
+                    </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Product Information & Purchase Panel -->
+        <div class="lg:col-span-6 space-y-6">
+            
+            <div>
+                <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+                    <span class="uppercase tracking-widest text-gold font-bold">{{ product.category_name }}</span>
+                    <span>SKU: <strong class="text-gray-700">{{ product.sku }}</strong></span>
+                </div>
+
+                <h1 class="font-serif text-2xl sm:text-3xl font-bold text-gray-950 leading-snug">
+                    {{ product.name }}
+                </h1>
+
+                <!-- Reviews and Rating Badge -->
+                <div class="flex items-center gap-3 mt-3">
+                    <div class="flex items-center bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-amber-700 text-xs font-bold">
+                        <i class="fa-solid fa-star text-amber-500 mr-1"></i> {{ product.avg_rating }}
+                    </div>
+                    <a href="#reviews-section" class="text-xs text-gray-500 hover:text-gold transition">
+                        Based on {{ product.review_count }} customer review{% if product.review_count != 1 %}s{% endif %}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Price Display -->
+            <div class="p-4 rounded-xl bg-rose-50/50 border border-rose-100 flex items-baseline gap-3">
+                <span class="text-3xl font-bold text-gray-950 font-serif">₹{{ "%.2f"|format(product.price) }}</span>
+                {% if product.mrp > product.price %}
+                <span class="text-sm text-gray-400 line-through">MRP: ₹{{ "%.2f"|format(product.mrp) }}</span>
+                <span class="text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded">
+                    Save {{ product.discount_pct }}%
+                </span>
+                {% endif %}
+                <span class="text-[11px] text-gray-500 block sm:inline ml-auto">Inclusive of all taxes</span>
+            </div>
+
+            <!-- Live Social Proof & High Demand FOMO Badge (Nykaa Style) -->
+            <div class="p-3 rounded-xl bg-gradient-to-r from-rose-50 via-amber-50/60 to-rose-50 border border-rose-200/90 text-xs text-gray-800 space-y-1.5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="relative flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
+                        </span>
+                        <span class="font-bold text-gray-900"><span id="live-viewer-count">18</span> people viewing this piece right now</span>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-100/90 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <i class="fa-solid fa-fire text-rose-600"></i> Selling Fast
+                    </span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-gray-600 pt-0.5 border-t border-rose-100">
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-truck-fast text-gold"></i> Dispatches within 24 Hours</span>
+                    <span class="font-medium text-emerald-700"><i class="fa-solid fa-check mr-0.5"></i> 34 bought this week</span>
+                </div>
+            </div>
+
+            <!-- Short Description -->
+            <p class="text-sm text-gray-600 leading-relaxed font-light">
+                {{ product.short_description }}
+            </p>
+
+            <!-- Size Selector -->
+            <div>
+                <div class="flex items-center justify-between text-xs mb-2">
+                    <span class="font-bold text-gray-900 uppercase tracking-wider">Select Size:</span>
+                    <button type="button" onclick="document.getElementById('size-guide-modal').classList.remove('hidden')" class="text-gold hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-ruler-horizontal"></i> Size Guide
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2.5" id="size-options">
+                    {% for sz in product.sizes_list %}
+                    <label class="size-pill cursor-pointer">
+                        <input type="radio" name="selected_size" value="{{ sz }}" {% if loop.first %}checked{% endif %} class="hidden peer">
+                        <span class="block px-4 py-2 text-xs font-bold rounded-lg border border-gray-300 text-gray-800 peer-checked:bg-gray-950 peer-checked:text-white peer-checked:border-gray-950 hover:border-gold transition">
+                            {{ sz }}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Stock Status -->
+            <div class="text-xs font-semibold flex items-center gap-2">
+                {% if product.stock > 5 %}
+                <span class="text-emerald-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> In Stock (Dispatches in 24 hours)</span>
+                {% elif product.stock > 0 %}
+                <span class="text-amber-700 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Only {{ product.stock }} left in stock - Order Soon!</span>
+                {% else %}
+                <span class="text-rose-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark"></i> Out of Stock</span>
+                {% endif %}
+            </div>
+
+            <!-- Quantity & Action Buttons -->
+            <div id="main-product-actions" class="space-y-3 pt-2">
+                <div class="flex items-center gap-4">
+                    <div class="inline-flex items-center border border-gray-300 rounded-lg bg-white p-1">
+                        <button type="button" onclick="adjustProductQty(-1)" class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded">
+                            <i class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                        <input type="number" id="product-qty-input" value="1" min="1" max="{{ product.stock }}" class="w-12 text-center text-sm font-bold border-none focus:outline-none">
+                        <button type="button" onclick="adjustProductQty(1)" class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
+                    </div>
+
+                <!-- 1-Click WhatsApp Order Hero Button -->
+                <button type="button" 
+                        onclick="orderProductViaWhatsApp()" 
+                        {% if product.stock < 1 %}disabled{% endif %}
+                        class="w-full py-4 px-6 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-2.5 shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] disabled:opacity-50">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i> Order Now on WhatsApp
+                </button>
+
+                <div class="flex items-center gap-3">
+                    <!-- Add to Bag Button -->
+                    <button type="button" 
+                            id="main-add-to-cart-btn"
+                            onclick="handleProductAddToCart(false)" 
+                            {% if product.stock < 1 %}disabled{% endif %}
+                            class="flex-1 btn-luxury-dark py-3 px-5 rounded-lg text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-2 shadow disabled:opacity-50">
+                        <i class="fa-solid fa-bag-shopping"></i> Add to Bag (Combine Orders)
+                    </button>
+
+                    <!-- Wishlist Button -->
+                    <button type="button" 
+                            onclick="toggleWishlist({{ product.id }}, this)" 
+                            class="wishlist-btn w-11 h-11 rounded-lg border border-rose-200 flex items-center justify-center text-gray-700 hover:border-rose-400 hover:text-rose-600 transition" 
+                            title="Add to Wishlist">
+                        <i class="fa-regular fa-heart text-base"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PIN Code Delivery Estimator Widget -->
+            <div class="p-4 rounded-xl bg-gray-50 border border-gray-200">
+                <span class="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                    <i class="fa-solid fa-truck-fast text-gold"></i> Check Delivery to Your Pincode
+                </span>
+                <div class="flex gap-2">
+                    <input type="text" 
+                           id="detail-pincode-input" 
+                           maxlength="6" 
+                           placeholder="Enter 6-Digit PIN Code" 
+                           class="flex-1 px-3 py-2 text-xs bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-gold">
+                    <button type="button" 
+                            onclick="checkPincodeServiceability(document.getElementById('detail-pincode-input').value, 'detail-pincode-result', {{ product.price }})" 
+                            class="px-4 py-2 text-xs font-bold bg-gray-900 text-white rounded-lg hover:bg-gold transition">
+                        Check
+                    </button>
+                </div>
+                <div id="detail-pincode-result"></div>
+            </div>
+
+            <!-- Value Proposition Badges -->
+            <div class="grid grid-cols-2 gap-3 text-xs text-gray-600 pt-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-certificate text-gold text-base"></i>
+                    <span>100% Genuine Handcrafted</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left text-gold text-base"></i>
+                    <span>7-Day Easy Return / Exchange</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-hand-holding-dollar text-gold text-base"></i>
+                    <span>Cash on Delivery Available</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
+                    <span>Direct WhatsApp & UPI Order</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Product Description & Specifications Tabs -->
+    <div class="mt-16 pt-12 border-t border-rose-100">
+        <div class="max-w-4xl mx-auto">
+            <div class="border-b border-gray-200 flex gap-8">
+                <button onclick="switchTab('tab-desc', this)" class="tab-link pb-3 text-sm font-bold text-gold border-b-2 border-gold transition">
+                    Detailed Description
+                </button>
+                <button onclick="switchTab('tab-care', this)" class="tab-link pb-3 text-sm font-semibold text-gray-500 hover:text-gray-900 transition">
+                    Fabric & Care Instructions
+                </button>
+                <button onclick="switchTab('tab-shipping', this)" class="tab-link pb-3 text-sm font-semibold text-gray-500 hover:text-gray-900 transition">
+                    Shipping & Returns
+                </button>
+            </div>
+
+            <div class="py-6 text-sm text-gray-600 leading-relaxed font-light">
+                <div id="tab-desc" class="tab-content">
+                    <p class="whitespace-pre-line">{{ product.description }}</p>
+                    <div class="mt-4 grid grid-cols-2 gap-4 text-xs bg-rose-50/50 p-4 rounded-xl border border-rose-100">
+                        <div><strong>Category:</strong> {{ product.category_name }}</div>
+                        <div><strong>SKU:</strong> {{ product.sku }}</div>
+                        <div><strong>Approx. Weight:</strong> {{ product.weight_grams }} grams</div>
+                        <div><strong>Origin:</strong> Made in India (Handcrafted)</div>
+                    </div>
+                </div>
+
+                <div id="tab-care" class="tab-content hidden">
+                    <h4 class="font-serif font-bold text-gray-900 text-base mb-2">Artisan Care Protocol</h4>
+                    <p class="whitespace-pre-line">{{ product.care_instructions|default('Handle with love and care. Avoid water contact for jewelry. Wash painted garments inside out.') }}</p>
+                </div>
+
+                <div id="tab-shipping" class="tab-content hidden space-y-2">
+                    <p>• <strong>Free Delivery:</strong> On all orders above ₹999 across India.</p>
+                    <p>• <strong>Standard Shipping:</strong> ₹70 for orders below ₹999.</p>
+                    <p>• <strong>Estimated Delivery:</strong> 2-4 business days for metros, 3-6 business days for rest of India.</p>
+                    <p>• <strong>Returns:</strong> 7-day hassle-free returns or size exchanges from date of delivery.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Reviews Section -->
+    <div id="reviews-section" class="mt-16 pt-12 border-t border-rose-100 max-w-4xl mx-auto">
+        <div class="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
+            <div>
+                <span class="text-xs uppercase tracking-widest text-gold font-bold">Real Feedback</span>
+                <h3 class="font-serif text-2xl font-bold text-gray-900">Customer Ratings & Reviews</h3>
+            </div>
+            <button onclick="document.getElementById('write-review-form').classList.toggle('hidden')" class="btn-luxury-outline px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider">
+                Write a Review
+            </button>
+        </div>
+
+        <!-- Review Submission Form (Toggled) -->
+        <div id="write-review-form" class="hidden bg-rose-50/50 p-6 rounded-2xl border border-rose-100 mb-8">
+            <h4 class="font-serif font-bold text-gray-900 text-base mb-4">Share Your Experience</h4>
+            <form method="POST" action="/api/review/submit" class="space-y-4">
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Your Name *</label>
+                        <input type="text" name="customer_name" required class="w-full px-3 py-2 text-xs bg-white border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Email Address *</label>
+                        <input type="email" name="customer_email" required class="w-full px-3 py-2 text-xs bg-white border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Rating *</label>
+                        <select name="rating" required class="w-full px-3 py-2 text-xs bg-white border border-gray-300 rounded-lg">
+                            <option value="5">⭐⭐⭐⭐⭐ (5 - Outstanding)</option>
+                            <option value="4">⭐⭐⭐⭐ (4 - Very Good)</option>
+                            <option value="3">⭐⭐⭐ (3 - Average)</option>
+                            <option value="2">⭐⭐ (2 - Poor)</option>
+                            <option value="1">⭐ (1 - Terrible)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Review Title</label>
+                        <input type="text" name="title" placeholder="e.g. Loved the craftsmanship!" class="w-full px-3 py-2 text-xs bg-white border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Your Review *</label>
+                    <textarea name="comment" required rows="3" placeholder="Tell us what you loved about this piece..." class="w-full px-3 py-2 text-xs bg-white border border-gray-300 rounded-lg"></textarea>
+                </div>
+                <button type="submit" class="btn-luxury-gold px-6 py-2.5 rounded-full text-xs uppercase tracking-wider font-bold">
+                    Submit Review
+                </button>
+            </form>
+        </div>
+
+        <!-- Reviews List -->
+        {% if reviews|length > 0 %}
+        <div class="space-y-4">
+            {% for r in reviews %}
+            <div class="bg-white p-5 rounded-xl border border-rose-100 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-800 font-bold text-xs flex items-center justify-center">
+                            {{ r.customer_name[0] }}
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-900">{{ r.customer_name }}</p>
+                            <div class="flex text-amber-500 text-[10px]">
+                                {% for star in range(r.rating) %}<i class="fa-solid fa-star"></i>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Verified Buyer</span>
+                </div>
+                {% if r.title %}
+                <h5 class="text-xs font-bold text-gray-800 mt-2">{{ r.title }}</h5>
+                {% endif %}
+                <p class="text-xs text-gray-600 mt-1 leading-relaxed font-light">{{ r.comment }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-xs text-gray-500 text-center py-6">Be the first to review this magnificent creation!</p>
+        {% endif %}
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products|length > 0 %}
+    <div class="mt-20 pt-12 border-t border-rose-100">
+        <h3 class="font-serif text-2xl font-bold text-gray-900 mb-8 text-center">You May Also Admire</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {% for rel in related_products %}
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-rose-100 flex flex-col justify-between shadow-sm">
+                <div class="product-img-wrapper aspect-square">
+                    <a href="/product/{{ rel.slug }}">
+                        <img src="{{ rel.primary_image|default('/static/images/logo.jpg') }}" alt="{{ rel.name }}" class="w-full h-full object-cover">
+                    </a>
+                </div>
+                <div class="p-4">
+                    <span class="text-[10px] text-gray-500 uppercase tracking-wider">{{ rel.category_name }}</span>
+                    <a href="/product/{{ rel.slug }}" class="font-serif text-sm font-bold text-gray-900 hover:text-gold block line-clamp-1 mt-0.5">
+                        {{ rel.name }}
+                    </a>
+                    <div class="mt-3 flex items-center justify-between">
+                        <span class="text-sm font-bold text-gray-900">₹{{ "%.2f"|format(rel.price) }}</span>
+                        <a href="/product/{{ rel.slug }}" class="text-xs font-semibold px-2.5 py-1 bg-gray-900 text-white rounded-full hover:bg-gold transition">View</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Size Guide Modal -->
+<div id="size-guide-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-4 border-b border-rose-100">
+            <h4 class="font-serif font-bold text-lg text-gray-900">Size & Measurement Guide</h4>
+            <button onclick="document.getElementById('size-guide-modal').classList.add('hidden')" class="text-gray-400 hover:text-gray-700">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <div class="py-4 text-xs text-gray-600 space-y-4">
+            <p><strong>T-Shirts (Inches):</strong></p>
+            <table class="w-full border-collapse border border-gray-200 text-center text-xs">
+                <tr class="bg-rose-50 font-bold">
+                    <td class="border p-1.5">Size</td>
+                    <td class="border p-1.5">Chest</td>
+                    <td class="border p-1.5">Length</td>
+                    <td class="border p-1.5">Shoulder</td>
+                </tr>
+                <tr><td class="border p-1.5 font-bold">S</td><td class="border p-1.5">38"</td><td class="border p-1.5">27"</td><td class="border p-1.5">17"</td></tr>
+                <tr><td class="border p-1.5 font-bold">M</td><td class="border p-1.5">40"</td><td class="border p-1.5">28"</td><td class="border p-1.5">18"</td></tr>
+                <tr><td class="border p-1.5 font-bold">L</td><td class="border p-1.5">42"</td><td class="border p-1.5">29"</td><td class="border p-1.5">19"</td></tr>
+                <tr><td class="border p-1.5 font-bold">XL</td><td class="border p-1.5">44"</td><td class="border p-1.5">30"</td><td class="border p-1.5">20"</td></tr>
+                <tr><td class="border p-1.5 font-bold">XXL</td><td class="border p-1.5">46"</td><td class="border p-1.5">31"</td><td class="border p-1.5">21"</td></tr>
+            </table>
+            <p><strong>Jewellery & Potlis:</strong> All earrings and potli bags are Free Size with comfortable universal proportions.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function swapMainImage(url, btn) {
+    const mainImg = document.getElementById('main-product-image');
+    if (mainImg) mainImg.src = url;
+    document.querySelectorAll('.thumb-btn').forEach(b => {
+        b.classList.remove('border-gold');
+        b.classList.add('border-transparent');
+    });
+    if (btn) {
+        btn.classList.add('border-gold');
+        btn.classList.remove('border-transparent');
+    }
+}
+
+function adjustProductQty(delta) {
+    const input = document.getElementById('product-qty-input');
+    if (!input) return;
+    let val = parseInt(input.value) || 1;
+    val = Math.max(1, Math.min(parseInt(input.max) || 10, val + delta));
+    input.value = val;
+}
+
+function getSelectedSize() {
+    const radio = document.querySelector('input[name="selected_size"]:checked');
+    return radio ? radio.value : 'Free Size';
+}
+
+function orderProductViaWhatsApp() {
+    const qty = parseInt(document.getElementById('product-qty-input')?.value) || 1;
+    const size = getSelectedSize();
+    const productName = {{ product.name|tojson }};
+    const sku = {{ product.sku|tojson }};
+    const price = {{ product.price }};
+    const totalPrice = (price * qty).toFixed(2);
+    const productUrl = window.location.href;
+    const phone = window.STORE_WHATSAPP || {{ store_settings.support_whatsapp|default('919876543210')|tojson }};
+
+    const pinInput = document.getElementById('detail-pincode-input');
+    const pinVal = pinInput ? pinInput.value.trim() : '';
+    const pinText = (pinVal.length === 6) ? `\n📍 *Delivery Pincode:* ${pinVal}` : '';
+
+    const text = `Namaste Shubhashtu Fashion! 🙏\n\nI want to order this handcrafted piece:\n🛍️ *${productName}*\n🔖 *SKU:* ${sku}\n📏 *Size:* ${size}\n🔢 *Quantity:* ${qty}\n💰 *Price:* ₹${totalPrice}${pinText}\n🔗 *Product:* ${productUrl}\n\nPlease confirm availability and share your UPI QR / GPay details to complete my order. Thank you!`;
+
+    const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
+}
+
+async function handleProductAddToCart() {
+    const qty = parseInt(document.getElementById('product-qty-input').value) || 1;
+    const size = getSelectedSize();
+    const productId = {{ product.id }};
+    await addToCart(productId, qty, size, '', true);
+}
+
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById(tabId).classList.remove('hidden');
+
+    document.querySelectorAll('.tab-link').forEach(b => {
+        b.classList.remove('text-gold', 'border-b-2', 'border-gold', 'font-bold');
+        b.classList.add('text-gray-500', 'font-semibold');
+    });
+
+    btn.classList.remove('text-gray-500', 'font-semibold');
+    btn.classList.add('text-gold', 'border-b-2', 'border-gold', 'font-bold');
+}
+
+// Sticky Mobile Buy Bar Controller & Live Social Proof
+document.addEventListener('DOMContentLoaded', function() {
+    const mainActions = document.getElementById('main-product-actions');
+    const stickyBar = document.getElementById('sticky-mobile-buy-bar');
+    if (mainActions && stickyBar) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // When main action buttons are scrolled above the viewport, show sticky mobile bar
+                if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+                    stickyBar.classList.remove('translate-y-full', 'pointer-events-none');
+                } else {
+                    stickyBar.classList.add('translate-y-full', 'pointer-events-none');
+                }
+            });
+        }, { threshold: 0.05 });
+        observer.observe(mainActions);
+    }
+
+    // Dynamic Live Viewer Fluctuations (Nykaa / Luxury eCommerce FOMO)
+    const viewerCountEl = document.getElementById('live-viewer-count');
+    if (viewerCountEl) {
+        setInterval(() => {
+            const current = parseInt(viewerCountEl.textContent) || 18;
+            const delta = Math.random() > 0.5 ? 1 : -1;
+            const nextCount = Math.max(12, Math.min(32, current + delta));
+            viewerCountEl.textContent = nextCount;
+        }, 12000);
+    }
+});
+</script>
+
+<!-- Sticky Mobile "Add to Bag" Bottom Bar (Nykaa Luxury Standard) -->
+<div id="sticky-mobile-buy-bar" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-rose-200/90 shadow-2xl p-2.5 sm:p-3 md:hidden transform translate-y-full transition-transform duration-300 ease-in-out pointer-events-none">
+    <div class="flex items-center justify-between gap-3 max-w-lg mx-auto">
+        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <img src="{{ product.primary_image|default('/static/images/logo.jpg') }}" alt="{{ product.name }}" class="w-10 h-12 rounded-lg object-cover border border-rose-200 flex-shrink-0">
+            <div class="truncate">
+                <p class="text-xs font-bold text-gray-900 truncate">{{ product.name }}</p>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-xs font-bold text-gray-950 font-serif">₹{{ "%.2f"|format(product.price) }}</span>
+                    {% if product.mrp > product.price %}
+                    <span class="text-[10px] text-gray-400 line-through">₹{{ "%.2f"|format(product.mrp) }}</span>
+                    <span class="text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">Save {{ product.discount_pct }}%</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <button type="button" 
+                    onclick="handleProductAddToCart()" 
+                    {% if product.stock < 1 %}disabled{% endif %}
+                    class="btn-luxury-dark py-2.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1 shadow disabled:opacity-50"
+                    title="Add to Bag">
+                <i class="fa-solid fa-bag-shopping"></i>
+            </button>
+            <button type="button" 
+                    onclick="orderProductViaWhatsApp()" 
+                    {% if product.stock < 1 %}disabled{% endif %}
+                    class="py-2.5 px-3.5 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold flex items-center gap-1.5 shadow-lg disabled:opacity-50">
+                <i class="fa-brands fa-whatsapp text-lg"></i> Order
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

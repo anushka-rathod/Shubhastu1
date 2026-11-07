@@ -1,0 +1,98 @@
+{% extends "admin/base_admin.html" %}
+
+{% block header_title %}Customer Orders ({{ orders|length }}){% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    
+    <!-- Status Filter Tabs & Search -->
+    <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        
+        <!-- Filter Tabs -->
+        <div class="flex flex-wrap items-center gap-1.5 text-xs">
+            {% set statuses = ['all', 'Order Placed', 'Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'] %}
+            {% for st in statuses %}
+            <a href="/admin/orders?status={{ st }}" class="px-3 py-1.5 rounded-lg font-semibold transition {% if current_status == st %}bg-gray-900 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                {{ st|capitalize }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <button onclick="exportOrdersToCSV()" class="btn-luxury-outline px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                <i class="fa-solid fa-file-csv"></i> Export CSV Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border-collapse">
+                <thead class="bg-gray-50 text-gray-600 uppercase tracking-wider font-semibold border-b border-gray-200">
+                    <tr>
+                        <th class="py-3 px-4">Order ID</th>
+                        <th class="py-3 px-4">Customer</th>
+                        <th class="py-3 px-4">Destination</th>
+                        <th class="py-3 px-4">Date</th>
+                        <th class="py-3 px-4">Total</th>
+                        <th class="py-3 px-4">Payment</th>
+                        <th class="py-3 px-4">Status</th>
+                        <th class="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for ord in orders %}
+                    <tr class="hover:bg-rose-50/20 transition">
+                        <td class="py-3 px-4">
+                            <a href="/admin/orders/{{ ord.id }}" class="font-bold text-gray-900 hover:text-gold block">
+                                {{ ord.order_number }}
+                            </a>
+                            <span class="text-[10px] text-gray-400">{{ ord.item_count }} items</span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="font-bold text-gray-800">{{ ord.customer_name }}</span>
+                            <p class="text-[10px] text-gray-400">{{ ord.customer_phone }}</p>
+                        </td>
+                        <td class="py-3 px-4 text-gray-600">
+                            {{ ord.shipping_city }}, {{ ord.shipping_state }} ({{ ord.shipping_pincode }})
+                        </td>
+                        <td class="py-3 px-4 text-gray-500">{{ ord.created_at[:10] }}</td>
+                        <td class="py-3 px-4 font-bold text-gray-900">₹{{ "%.2f"|format(ord.total_amount) }}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase
+                                {% if ord.payment_status == 'paid' %}bg-emerald-100 text-emerald-800
+                                {% else %}bg-amber-100 text-amber-800{% endif %}">
+                                {{ ord.payment_method|upper }} ({{ ord.payment_status }})
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase
+                                {% if ord.order_status == 'Delivered' %}bg-emerald-100 text-emerald-800
+                                {% elif ord.order_status == 'Shipped' %}bg-blue-100 text-blue-800
+                                {% elif ord.order_status == 'Cancelled' %}bg-rose-100 text-rose-800
+                                {% else %}bg-amber-100 text-amber-800{% endif %}">
+                                {{ ord.order_status }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right space-x-2">
+                            <a href="/admin/orders/{{ ord.id }}" class="btn-luxury-dark px-3 py-1 rounded-lg text-[11px] font-semibold">
+                                Details
+                            </a>
+                            <a href="/invoice/{{ ord.order_number }}" target="_blank" class="text-gray-500 hover:text-gold text-xs" title="View Tax Invoice">
+                                <i class="fa-solid fa-file-invoice"></i>
+                            </a>
+                            <button onclick="deleteOrder({{ ord.id }}, '{{ ord.order_number }}')" class="px-2 py-1 text-rose-500 hover:text-white hover:bg-rose-500 border border-rose-200 rounded text-xs transition inline-flex items-center gap-1" title="Delete Order">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Our Story | Shubhashtu Fashion{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-r from-rose-50 via-white to-rose-50 py-12 border-b border-rose-100">
+    <div class="container mx-auto px-4 text-center">
+        <span class="text-xs uppercase tracking-widest text-gold font-bold">The Heritage of Shubhashtu</span>
+        <h1 class="font-serif text-3xl sm:text-5xl font-bold text-gray-950 mt-1">
+            "Style That Speaks for You."
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-500 mt-2 max-w-xl mx-auto font-light">
+            Founded with a passion for Indian art and contemporary design, Shubhashtu Fashion bridges royal heritage with modern everyday elegance.
+        </p>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-16">
+    <div class="max-w-4xl mx-auto space-y-16">
+        
+        <!-- Story block 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div>
+                <span class="text-xs font-bold text-gold uppercase tracking-wider">Artisan Roots</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-gray-900 mt-1 mb-4">Born from India's Rich Artistic Soil</h2>
+                <p class="text-xs sm:text-sm text-gray-600 leading-relaxed font-light mb-4">
+                    India's artisanal heritage spans thousands of years — from the royal Kundan ateliers of Jaipur to the fine needlecraft of Lucknow and the temple stone carvings of Tamil Nadu.
+                </p>
+                <p class="text-xs sm:text-sm text-gray-600 leading-relaxed font-light">
+                    <strong>Shubhashtu Fashion</strong> was founded on a simple yet profound conviction: that traditional craftsmanship should not remain confined to museums or bridal heirlooms, but should flourish in the modern wardrobe with grace, comfort, and uncompromising elegance.
+                </p>
+            </div>
+            <div class="rounded-2xl overflow-hidden shadow-xl border-4 border-white aspect-[4/3]">
+                <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80" alt="Jewellery Craftsmanship" class="w-full h-full object-cover">
+            </div>
+        </div>
+
+        <!-- Story block 2: Hand Painted T-Shirts -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div class="order-2 md:order-1 rounded-2xl overflow-hidden shadow-xl border-4 border-white aspect-[4/3]">
+                <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80" alt="Hand Painted T-Shirts" class="w-full h-full object-cover">
+            </div>
+            <div class="order-1 md:order-2">
+                <span class="text-xs font-bold text-gold uppercase tracking-wider">Wearable Art</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-gray-900 mt-1 mb-4">Individually Painted T-Shirts</h2>
+                <p class="text-xs sm:text-sm text-gray-600 leading-relaxed font-light mb-4">
+                    In an era of mass-produced fast fashion, we chose slow, intentional creation. Each of our Hand-Painted T-Shirts is treated as an individual canvas.
+                </p>
+                <p class="text-xs sm:text-sm text-gray-600 leading-relaxed font-light">
+                    Our artists spend hours hand-painting peacocks, sacred mandalas, and royal motifs using permanent, skin-friendly fabric acrylics on pure 220 GSM bio-washed organic cotton. No two pieces are ever completely identical — making yours truly one-of-a-kind.
+                </p>
+            </div>
+        </div>
+
+        <!-- Brand Pillars -->
+        <div class="bg-blush-50/70 p-8 sm:p-12 rounded-3xl border border-rose-200/60 text-center">
+            <h3 class="font-serif text-2xl font-bold text-gray-900 mb-8">Our Guiding Pillars</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
+                <div class="bg-white p-5 rounded-xl border border-rose-100 shadow-sm">
+                    <div class="w-10 h-10 rounded-full bg-rose-50 text-gold flex items-center justify-center font-bold text-lg mb-3">
+                        <i class="fa-solid fa-gem"></i>
+                    </div>
+                    <h4 class="font-serif font-bold text-sm text-gray-900 mb-1">Purity of Material</h4>
+                    <p class="text-xs text-gray-500 leading-relaxed">Hypoallergenic brass, 24K micron plating, hand-cut Kundan stones, and 100% breathable organic cotton.</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-rose-100 shadow-sm">
+                    <div class="w-10 h-10 rounded-full bg-rose-50 text-gold flex items-center justify-center font-bold text-lg mb-3">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                    </div>
+                    <h4 class="font-serif font-bold text-sm text-gray-900 mb-1">Fair Artisan Wages</h4>
+                    <p class="text-xs text-gray-500 leading-relaxed">Direct partnerships with master jewelry karigars and painters ensuring dignified wages and family livelihoods.</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-rose-100 shadow-sm">
+                    <div class="w-10 h-10 rounded-full bg-rose-50 text-gold flex items-center justify-center font-bold text-lg mb-3">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <h4 class="font-serif font-bold text-sm text-gray-900 mb-1">Delightful Experience</h4>
+                    <p class="text-xs text-gray-500 leading-relaxed">All-India fast courier dispatch, luxury satin packaging, and round-the-clock WhatsApp support.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Track Your Order | Shubhashtu Fashion{% endblock %}
+
+{% block content %}
+<div class="bg-rose-50/50 py-8 border-b border-rose-100">
+    <div class="container mx-auto px-4 text-center">
+        <span class="text-xs uppercase tracking-widest text-gold font-bold">Live Status</span>
+        <h1 class="font-serif text-3xl font-bold text-gray-900 mt-1">Track Your Order</h1>
+        <p class="text-xs text-gray-500 mt-1">Enter your Order Number and Mobile Number to track delivery progress in real-time.</p>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-10">
+    <!-- Lookup Form -->
+    <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl border border-rose-100 shadow-sm mb-10">
+        <form method="GET" action="/track-order" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Order Number *</label>
+                <input type="text" name="order_number" value="{{ order_number|default('') }}" required placeholder="e.g. SHB-2026-1001" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg uppercase font-semibold">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Phone Number or Email (Optional for Verification)</label>
+                <input type="text" name="phone_or_email" value="{{ phone_or_email|default('') }}" placeholder="Enter phone or email used during checkout" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg">
+            </div>
+            <button type="submit" class="w-full btn-luxury-gold py-3 rounded-xl text-xs uppercase tracking-widest font-bold">
+                <i class="fa-solid fa-location-crosshairs mr-1"></i> Track Parcel
+            </button>
+        </form>
+    </div>
+
+    <!-- Tracking Results Card -->
+    {% if order %}
+    <div class="max-w-3xl mx-auto bg-white rounded-3xl border border-rose-100 shadow-lg p-6 sm:p-10 space-y-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row items-center justify-between pb-6 border-b border-rose-100 gap-4 text-center sm:text-left">
+            <div>
+                <span class="text-xs text-gray-500">Order Reference</span>
+                <h2 class="font-serif text-2xl font-bold text-gray-950">{{ order.order_number }}</h2>
+                <p class="text-xs text-gray-400 mt-0.5">Placed on {{ order.created_at[:10] }}</p>
+            </div>
+            <div class="text-center sm:text-right">
+                <span class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200">
+                    {{ order.order_status }}
+                </span>
+                <p class="text-xs text-gray-500 mt-1.5">Estimated Delivery: <strong>{{ order.estimated_delivery|default('3-5 Business Days') }}</strong></p>
+            </div>
+        </div>
+
+        <!-- Visual Milestone Progress Bar -->
+        {% set statuses = ['Order Placed', 'Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'] %}
+        {% set current_idx = 0 %}
+        {% for s in statuses %}
+            {% if order.order_status == s %}
+                {% set current_idx = loop.index0 %}
+            {% endif %}
+        {% endfor %}
+
+        <div>
+            <h4 class="font-serif text-sm font-bold text-gray-900 mb-6">Delivery Milestones</h4>
+            <div class="grid grid-cols-6 gap-2 text-center relative">
+                {% for st in statuses %}
+                <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-2 transition shadow-sm
+                        {% if loop.index0 <= current_idx %}
+                            bg-gold text-white
+                        {% else %}
+                            bg-gray-100 text-gray-400 border border-gray-200
+                        {% endif %}">
+                        {% if loop.index0 < current_idx %}
+                            <i class="fa-solid fa-check"></i>
+                        {% else %}
+                            {{ loop.index }}
+                        {% endif %}
+                    </div>
+                    <span class="text-[10px] font-semibold leading-tight {% if loop.index0 <= current_idx %}text-gray-900{% else %}text-gray-400{% endif %}">
+                        {{ st }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Courier Details if Shipped -->
+        {% if order.tracking_number %}
+        <div class="p-4 bg-blush-50 rounded-2xl border border-rose-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div>
+                <p class="font-bold text-gray-900"><i class="fa-solid fa-box text-gold mr-1"></i> Courier Partner: {{ order.courier_name|default('Shubhashtu Courier') }}</p>
+                <p class="text-gray-600 mt-0.5">Tracking AWB: <strong>{{ order.tracking_number }}</strong></p>
+            </div>
+            {% if order.tracking_url %}
+            <a href="{{ order.tracking_url }}" target="_blank" class="btn-luxury-dark px-4 py-2 rounded-lg text-xs font-semibold">
+                Live Courier Tracking <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Timeline Log -->
+        {% if order.history and order.history|length > 0 %}
+        <div class="space-y-3">
+            <h4 class="font-serif text-sm font-bold text-gray-900">Activity Log</h4>
+            <div class="border-l-2 border-rose-200 ml-3 space-y-4 text-xs pl-4">
+                {% for h in order.history %}
+                <div class="relative">
+                    <span class="absolute -left-[21px] top-0.5 w-2.5 h-2.5 rounded-full bg-gold"></span>
+                    <p class="font-bold text-gray-900">{{ h.status }}</p>
+                    <p class="text-gray-500 text-[11px]">{{ h.comment }} • {{ h.created_at[:16] }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Address & Invoice Link -->
+        <div class="pt-6 border-t border-rose-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div class="text-gray-600 text-center sm:text-left">
+                <p class="font-bold text-gray-900">Shipping To:</p>
+                <p>{{ order.customer_name }}, {{ order.shipping_city }}, {{ order.shipping_state }} - {{ order.shipping_pincode }}</p>
+            </div>
+            <a href="/invoice/{{ order.order_number }}" target="_blank" class="px-5 py-2.5 rounded-xl border border-rose-200 text-gray-800 hover:border-gold hover:text-gold transition font-bold">
+                <i class="fa-solid fa-file-invoice mr-1"></i> Download Tax Invoice
+            </a>
+        </div>
+
+    </div>
+    {% elif searched %}
+    <!-- Not Found -->
+    <div class="max-w-md mx-auto text-center py-10 bg-white rounded-2xl border border-rose-100 p-6">
+        <i class="fa-solid fa-circle-question text-3xl text-gray-400 mb-3"></i>
+        <h4 class="font-serif text-lg font-bold text-gray-900">Order Not Found</h4>
+        <p class="text-xs text-gray-500 mt-1">We couldn't find an order matching the details provided. Please check the order number or contact our WhatsApp support team.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
