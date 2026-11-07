@@ -31,7 +31,7 @@
                     {% else %}bg-amber-100 text-amber-800{% endif %}">
                     {{ order.payment_method|upper }} ({{ order.payment_status|capitalize }})
                 </span>
-                <button onclick="navigator.clipboard.writeText('{{ order.order_number }}'); showToast('Order ID copied!', 'success');" class="text-xs text-gold hover:underline font-semibold">
+                <button onclick="copyToClipboard('{{ order.order_number }}', 'Order ID copied!');" class="text-xs text-gold hover:underline font-semibold">
                     <i class="fa-regular fa-copy"></i> Copy
                 </button>
             </div>

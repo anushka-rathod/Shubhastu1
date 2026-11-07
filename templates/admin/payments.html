@@ -1,6 +1,6 @@
 {% extends "admin/base_admin.html" %}
 
-{% block header_title %}Payment Settings & Razorpay Gateway{% endblock %}
+{% block header_title %}WhatsApp Sales & Direct UPI Payments{% endblock %}
 
 {% block admin_content %}
 <div class="max-w-4xl mx-auto space-y-8">
@@ -14,44 +14,35 @@
 
     <form method="POST" action="/admin/payments/save" class="space-y-6">
         
-        <!-- Razorpay Credentials Card -->
+        <!-- WhatsApp Direct Ordering Card -->
         <div class="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-5 text-xs">
             <div class="pb-3 border-b border-gray-100 flex items-center justify-between">
                 <div>
                     <h3 class="font-serif text-base font-bold text-gray-900 flex items-center gap-2">
-                        <i class="fa-solid fa-shield-halved text-gold"></i> Razorpay Payment Gateway
+                        <i class="fa-brands fa-whatsapp text-emerald-600 text-lg"></i> WhatsApp Direct Sales & Ordering
                     </h3>
-                    <p class="text-gray-500 mt-0.5">Primary payment gateway for UPI (Google Pay, PhonePe, Paytm), Debit/Credit Cards & NetBanking</p>
+                    <p class="text-gray-500 mt-0.5">Primary sales channel. Customers click 'Order on WhatsApp' and send their selected item, size, and quantity directly to this number.</p>
                 </div>
-                <span class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase {% if has_keys %}bg-emerald-100 text-emerald-800{% else %}bg-amber-100 text-amber-800{% endif %}">
-                    {{ 'Live / Active' if has_keys else 'Keys Missing' }}
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">
+                    Active Channel
                 </span>
             </div>
 
             <div>
-                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Razorpay Key ID *</label>
-                <input type="text" name="razorpay_key_id" value="{{ settings.razorpay_key_id|default('') }}" placeholder="rzp_test_... or rzp_live_..." class="w-full px-3 py-2 border rounded-lg font-mono">
-                <p class="text-[11px] text-gray-400 mt-1">Found in your Razorpay Dashboard &rarr; Settings &rarr; API Keys.</p>
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">WhatsApp Business Phone Number (With Country Code) *</label>
+                <input type="text" name="support_whatsapp" value="{{ settings.support_whatsapp|default('919876543210') }}" placeholder="e.g. 919876543210" class="w-full px-3 py-2 border rounded-lg font-mono">
+                <p class="text-[11px] text-gray-400 mt-1">Format: 91 followed by 10-digit number (e.g. 919876543210). Do not use + or spaces.</p>
             </div>
 
             <div>
-                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Razorpay Key Secret *</label>
-                <input type="password" name="razorpay_key_secret" value="{{ settings.razorpay_key_secret|default('') }}" placeholder="••••••••••••••••" class="w-full px-3 py-2 border rounded-lg font-mono">
-                <p class="text-[11px] text-gray-400 mt-1">Kept strictly confidential. Used for cryptographic HMAC-SHA256 server-side signature verification.</p>
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Store UPI ID / VPA for Direct Customer Payments</label>
+                <input type="text" name="store_upi_id" value="{{ settings.store_upi_id|default('shubhashtu@upi') }}" placeholder="e.g. shubhashtu@okhdfcbank or 9876543210@paytm" class="w-full px-3 py-2 border rounded-lg font-mono">
+                <p class="text-[11px] text-gray-400 mt-1">Share this UPI ID or your QR code with customers in WhatsApp chats. Zero gateway commission fees (100% revenue stays with you)!</p>
             </div>
 
             <div>
-                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Webhook Secret (Optional)</label>
-                <input type="password" name="razorpay_webhook_secret" value="{{ settings.razorpay_webhook_secret|default('') }}" placeholder="••••••••" class="w-full px-3 py-2 border rounded-lg font-mono">
-                <p class="text-[11px] text-gray-400 mt-1">Webhook URL: <code class="bg-gray-100 px-1 py-0.5 rounded font-bold text-gray-700">/api/payment/razorpay/webhook</code></p>
-            </div>
-
-            <div class="pt-2">
-                <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800">
-                    <input type="checkbox" name="razorpay_test_mode" value="1" {% if settings.razorpay_test_mode == '1' %}checked{% endif %} class="rounded text-gold focus:ring-gold">
-                    <span>Test Mode Enabled (Uses Razorpay Sandbox)</span>
-                </label>
-                <p class="text-[11px] text-gray-400 ml-6 mt-0.5">Uncheck when you are ready to accept live real customer payments.</p>
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Payment Instructions Note</label>
+                <textarea name="payment_note" rows="2" placeholder="e.g. Pay via GPay/PhonePe to 9876543210. Send payment screenshot with delivery address." class="w-full px-3 py-2 border rounded-lg">{{ settings.payment_note|default('Please share screenshot after completing UPI payment for instant order confirmation and dispatch.') }}</textarea>
             </div>
         </div>
 
@@ -63,33 +54,29 @@
 
             <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800">
                 <input type="checkbox" name="cod_enabled" value="1" {% if settings.cod_enabled == '1' or settings.cod_enabled is not defined %}checked{% endif %} class="rounded text-gold focus:ring-gold">
-                <span>Enable Cash on Delivery option at Checkout</span>
+                <span>Accept Cash on Delivery (COD) via WhatsApp orders</span>
             </label>
-            <p class="text-[11px] text-gray-500 ml-6">Customers can pay with cash or UPI QR code at their doorstep upon receiving the parcel.</p>
+            <p class="text-[11px] text-gray-500 ml-6">Customers can pay with cash or UPI QR at their doorstep upon receiving the parcel from the courier.</p>
         </div>
 
         <div class="flex items-center justify-end">
             <button type="submit" class="btn-luxury-gold px-8 py-3 rounded-xl text-xs uppercase tracking-wider font-bold shadow-md">
-                Save Payment Settings
+                Save WhatsApp & Payment Settings
             </button>
         </div>
 
     </form>
 
-    <!-- Instructions Guide Card -->
-    <div class="bg-blush-50/70 p-6 rounded-2xl border border-rose-200 text-xs text-gray-700 space-y-3">
-        <h4 class="font-serif font-bold text-sm text-gray-900 flex items-center gap-2">
-            <i class="fa-solid fa-circle-question text-gold"></i> How to Connect Your Razorpay Account
+    <!-- Tips Card -->
+    <div class="bg-emerald-50/70 p-6 rounded-2xl border border-emerald-200 text-xs text-emerald-950 space-y-2">
+        <h4 class="font-serif font-bold text-sm text-emerald-900 flex items-center gap-2">
+            <i class="fa-solid fa-lightbulb text-emerald-600"></i> Pro-Tip for Higher WhatsApp Sales Conversion
         </h4>
-        <ol class="list-decimal list-inside space-y-1.5 pl-2 leading-relaxed">
-            <li>Visit <a href="https://dashboard.razorpay.com" target="_blank" class="text-gold font-bold underline">Razorpay Dashboard</a> and sign in.</li>
-            <li>In the left sidebar, click <strong>Settings</strong> &rarr; <strong>API Keys</strong>.</li>
-            <li>Click <strong>Generate Key</strong>. You will receive a <strong>Key ID</strong> and <strong>Key Secret</strong>.</li>
-            <li>Copy and paste them into the fields above, then click <strong>Save Payment Settings</strong>.</li>
-            <li>Ensure your store domain is active or tested. Real payments will now be verified securely!</li>
-        </ol>
+        <p class="leading-relaxed">
+            When a customer clicks "Order on WhatsApp", they send their chosen product, size, and delivery pincode in a pre-formatted message.
+            Keep your UPI QR code and payment message saved in your WhatsApp Business <strong>Quick Replies (e.g. /pay)</strong> so you can reply in 3 seconds!
+        </p>
     </div>
 
 </div>
 {% endblock %}
-

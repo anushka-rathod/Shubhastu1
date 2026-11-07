@@ -3,6 +3,7 @@ __pycache__/
 *$py.class
 *.sqlite-shm
 *.sqlite-wal
+.env
 .env.local
 .venv/
 env/
@@ -10,3 +11,4 @@ env/
 shubhashtu-fashion-vercel.zip
 shubhashtu-fashion-app.zip
 .pytest_cache/
+D

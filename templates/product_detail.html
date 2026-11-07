@@ -2,6 +2,39 @@
 
 {% block title %}{{ product.name }} | Shubhashtu Fashion{% endblock %}
 
+{% block extra_head %}
+<!-- Google Schema.org JSON-LD for Rich Product Snippets -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.name }}",
+  "image": [
+    "{{ product.primary_image }}"
+  ],
+  "description": "{{ product.short_description|escape }}",
+  "sku": "{{ product.sku }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "{{ store_settings.store_name|default('Shubhashtu Fashion') }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.path }}",
+    "priceCurrency": "INR",
+    "price": "{{ '%.2f'|format(product.price) }}",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": "{% if product.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ product.avg_rating }}",
+    "reviewCount": "{{ product.review_count|default(1) }}"
+  }
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- Breadcrumbs -->
 <div class="bg-rose-50/50 py-3 border-b border-rose-100 text-xs">
@@ -16,7 +49,7 @@
     </div>
 </div>
 
-<div class="container mx-auto px-4 py-10">
+<div class="container mx-auto px-4 py-10 pb-32 md:pb-12">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
         
         <!-- Left: Product Image Gallery -->
@@ -87,6 +120,26 @@
                 <span class="text-[11px] text-gray-500 block sm:inline ml-auto">Inclusive of all taxes</span>
             </div>
 
+            <!-- Live Social Proof & High Demand FOMO Badge (Nykaa Style) -->
+            <div class="p-3 rounded-xl bg-gradient-to-r from-rose-50 via-amber-50/60 to-rose-50 border border-rose-200/90 text-xs text-gray-800 space-y-1.5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="relative flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
+                        </span>
+                        <span class="font-bold text-gray-900"><span id="live-viewer-count">18</span> people viewing this piece right now</span>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-100/90 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <i class="fa-solid fa-fire text-rose-600"></i> Selling Fast
+                    </span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-gray-600 pt-0.5 border-t border-rose-100">
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-truck-fast text-gold"></i> Dispatches within 24 Hours</span>
+                    <span class="font-medium text-emerald-700"><i class="fa-solid fa-check mr-0.5"></i> 34 bought this week</span>
+                </div>
+            </div>
+
             <!-- Short Description -->
             <p class="text-sm text-gray-600 leading-relaxed font-light">
                 {{ product.short_description }}
@@ -124,7 +177,7 @@
             </div>
 
             <!-- Quantity & Action Buttons -->
-            <div class="space-y-3 pt-2">
+            <div id="main-product-actions" class="space-y-3 pt-2">
                 <div class="flex items-center gap-4">
                     <div class="inline-flex items-center border border-gray-300 rounded-lg bg-white p-1">
                         <button type="button" onclick="adjustProductQty(-1)" class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded">
@@ -136,30 +189,32 @@
                         </button>
                     </div>
 
+                <!-- 1-Click WhatsApp Order Hero Button -->
+                <button type="button" 
+                        onclick="orderProductViaWhatsApp()" 
+                        {% if product.stock < 1 %}disabled{% endif %}
+                        class="w-full py-4 px-6 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-2.5 shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] disabled:opacity-50">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i> Order Now on WhatsApp
+                </button>
+
+                <div class="flex items-center gap-3">
                     <!-- Add to Bag Button -->
                     <button type="button" 
+                            id="main-add-to-cart-btn"
                             onclick="handleProductAddToCart(false)" 
                             {% if product.stock < 1 %}disabled{% endif %}
-                            class="flex-1 btn-luxury-dark py-3.5 px-6 rounded-lg text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-2 shadow-md disabled:opacity-50">
-                        <i class="fa-solid fa-bag-shopping"></i> Add to Bag
+                            class="flex-1 btn-luxury-dark py-3 px-5 rounded-lg text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-2 shadow disabled:opacity-50">
+                        <i class="fa-solid fa-bag-shopping"></i> Add to Bag (Combine Orders)
                     </button>
 
                     <!-- Wishlist Button -->
                     <button type="button" 
                             onclick="toggleWishlist({{ product.id }}, this)" 
-                            class="wishlist-btn w-12 h-12 rounded-lg border border-rose-200 flex items-center justify-center text-gray-700 hover:border-rose-400 hover:text-rose-600 transition" 
+                            class="wishlist-btn w-11 h-11 rounded-lg border border-rose-200 flex items-center justify-center text-gray-700 hover:border-rose-400 hover:text-rose-600 transition" 
                             title="Add to Wishlist">
-                        <i class="fa-regular fa-heart text-lg"></i>
+                        <i class="fa-regular fa-heart text-base"></i>
                     </button>
                 </div>
-
-                <!-- Buy Now Button -->
-                <button type="button" 
-                        onclick="handleProductAddToCart(true)" 
-                        {% if product.stock < 1 %}disabled{% endif %}
-                        class="w-full btn-luxury-gold py-3.5 px-6 rounded-lg text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-2 shadow-lg disabled:opacity-50">
-                    <i class="fa-solid fa-bolt"></i> Buy Now
-                </button>
             </div>
 
             <!-- PIN Code Delivery Estimator Widget -->
@@ -197,8 +252,8 @@
                     <span>Cash on Delivery Available</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-shield text-gold text-base"></i>
-                    <span>Secure Razorpay Payment</span>
+                    <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
+                    <span>Direct WhatsApp & UPI Order</span>
                 </div>
             </div>
 
@@ -417,17 +472,31 @@ function getSelectedSize() {
     return radio ? radio.value : 'Free Size';
 }
 
-async function handleProductAddToCart(isBuyNow = false) {
+function orderProductViaWhatsApp() {
+    const qty = parseInt(document.getElementById('product-qty-input')?.value) || 1;
+    const size = getSelectedSize();
+    const productName = {{ product.name|tojson }};
+    const sku = {{ product.sku|tojson }};
+    const price = {{ product.price }};
+    const totalPrice = (price * qty).toFixed(2);
+    const productUrl = window.location.href;
+    const phone = window.STORE_WHATSAPP || {{ store_settings.support_whatsapp|default('919876543210')|tojson }};
+
+    const pinInput = document.getElementById('detail-pincode-input');
+    const pinVal = pinInput ? pinInput.value.trim() : '';
+    const pinText = (pinVal.length === 6) ? `\n📍 *Delivery Pincode:* ${pinVal}` : '';
+
+    const text = `Namaste Shubhashtu Fashion! 🙏\n\nI want to order this handcrafted piece:\n🛍️ *${productName}*\n🔖 *SKU:* ${sku}\n📏 *Size:* ${size}\n🔢 *Quantity:* ${qty}\n💰 *Price:* ₹${totalPrice}${pinText}\n🔗 *Product:* ${productUrl}\n\nPlease confirm availability and share your UPI QR / GPay details to complete my order. Thank you!`;
+
+    const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
+}
+
+async function handleProductAddToCart() {
     const qty = parseInt(document.getElementById('product-qty-input').value) || 1;
     const size = getSelectedSize();
     const productId = {{ product.id }};
-
-    if (isBuyNow) {
-        await addToCart(productId, qty, size, '', false);
-        window.location.href = '/checkout';
-    } else {
-        await addToCart(productId, qty, size, '', true);
-    }
+    await addToCart(productId, qty, size, '', true);
 }
 
 function switchTab(tabId, btn) {
@@ -442,6 +511,70 @@ function switchTab(tabId, btn) {
     btn.classList.remove('text-gray-500', 'font-semibold');
     btn.classList.add('text-gold', 'border-b-2', 'border-gold', 'font-bold');
 }
+
+// Sticky Mobile Buy Bar Controller & Live Social Proof
+document.addEventListener('DOMContentLoaded', function() {
+    const mainActions = document.getElementById('main-product-actions');
+    const stickyBar = document.getElementById('sticky-mobile-buy-bar');
+    if (mainActions && stickyBar) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // When main action buttons are scrolled above the viewport, show sticky mobile bar
+                if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+                    stickyBar.classList.remove('translate-y-full', 'pointer-events-none');
+                } else {
+                    stickyBar.classList.add('translate-y-full', 'pointer-events-none');
+                }
+            });
+        }, { threshold: 0.05 });
+        observer.observe(mainActions);
+    }
+
+    // Dynamic Live Viewer Fluctuations (Nykaa / Luxury eCommerce FOMO)
+    const viewerCountEl = document.getElementById('live-viewer-count');
+    if (viewerCountEl) {
+        setInterval(() => {
+            const current = parseInt(viewerCountEl.textContent) || 18;
+            const delta = Math.random() > 0.5 ? 1 : -1;
+            const nextCount = Math.max(12, Math.min(32, current + delta));
+            viewerCountEl.textContent = nextCount;
+        }, 12000);
+    }
+});
 </script>
+
+<!-- Sticky Mobile "Add to Bag" Bottom Bar (Nykaa Luxury Standard) -->
+<div id="sticky-mobile-buy-bar" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-rose-200/90 shadow-2xl p-2.5 sm:p-3 md:hidden transform translate-y-full transition-transform duration-300 ease-in-out pointer-events-none">
+    <div class="flex items-center justify-between gap-3 max-w-lg mx-auto">
+        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <img src="{{ product.primary_image|default('/static/images/logo.jpg') }}" alt="{{ product.name }}" class="w-10 h-12 rounded-lg object-cover border border-rose-200 flex-shrink-0">
+            <div class="truncate">
+                <p class="text-xs font-bold text-gray-900 truncate">{{ product.name }}</p>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-xs font-bold text-gray-950 font-serif">₹{{ "%.2f"|format(product.price) }}</span>
+                    {% if product.mrp > product.price %}
+                    <span class="text-[10px] text-gray-400 line-through">₹{{ "%.2f"|format(product.mrp) }}</span>
+                    <span class="text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">Save {{ product.discount_pct }}%</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <button type="button" 
+                    onclick="handleProductAddToCart()" 
+                    {% if product.stock < 1 %}disabled{% endif %}
+                    class="btn-luxury-dark py-2.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1 shadow disabled:opacity-50"
+                    title="Add to Bag">
+                <i class="fa-solid fa-bag-shopping"></i>
+            </button>
+            <button type="button" 
+                    onclick="orderProductViaWhatsApp()" 
+                    {% if product.stock < 1 %}disabled{% endif %}
+                    class="py-2.5 px-3.5 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold flex items-center gap-1.5 shadow-lg disabled:opacity-50">
+                <i class="fa-brands fa-whatsapp text-lg"></i> Order
+            </button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 

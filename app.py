@@ -13,10 +13,21 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-import tornado.ioloop
-import tornado.web
-import tornado.httpserver
-import jinja2
+try:
+    import tornado.ioloop
+    import tornado.web
+    import tornado.httpserver
+    import jinja2
+    HAS_TORNADO = True
+except ImportError:
+    HAS_TORNADO = False
+    class _MockRequestHandler: pass
+    tornado = type('MockTornado', (), {
+        'web': type('MockWeb', (), {'RequestHandler': _MockRequestHandler, 'Application': object, 'StaticFileHandler': object}),
+        'httpserver': object,
+        'ioloop': object
+    })()
+    jinja2 = None
 
 import config
 from config import Config
@@ -27,6 +38,7 @@ from services.shipping_service import ShippingService
 from services.payment_service import PaymentService
 from services.invoice_service import build_invoice_context, format_inr
 from services.email_service import EmailService
+from services.image_service import ImageService
 
 # Logging Setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -35,11 +47,14 @@ logger = logging.getLogger("shubhashtu")
 # Jinja2 Environment Setup
 TEMPLATES_DIR = config.BASE_DIR / 'templates'
 STATIC_DIR = config.BASE_DIR / 'static'
-jinja_env = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(str(TEMPLATES_DIR)),
-    autoescape=jinja2.select_autoescape(['html', 'xml'])
-)
-jinja_env.filters['format_inr'] = format_inr
+if jinja2:
+    jinja_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(str(TEMPLATES_DIR)),
+        autoescape=jinja2.select_autoescape(['html', 'xml'])
+    )
+    jinja_env.filters['format_inr'] = format_inr
+else:
+    jinja_env = None
 
 # ----------------- Base Request Handler -----------------
 class BaseHandler(tornado.web.RequestHandler):
@@ -184,20 +199,8 @@ class CartPageHandler(BaseHandler):
 
 class CheckoutPageHandler(BaseHandler):
     def get(self):
-        user = self.get_current_user()
-        user_id = user['id'] if user else None
-        cart = dal.get_cart(self.get_session_id(), user_id)
-
-        if not cart['items']:
-            self.redirect("/cart")
-            return
-
-        saved_addresses = dal.get_user_addresses(user_id) if user_id else []
-        self.render_template(
-            "checkout.html",
-            cart=cart,
-            saved_addresses=saved_addresses
-        )
+        # 1-Click WhatsApp Storefront: Orders are finalized seamlessly via WhatsApp
+        self.redirect("/cart")
 
 class OrderSuccessHandler(BaseHandler):
     def get(self, order_number):
@@ -862,17 +865,20 @@ class AdminProductNewHandler(BaseHandler):
         is_featured = 1 if self.get_argument("is_featured", None) else 0
         is_active = 1 if self.get_argument("is_active", None) else 0
 
-        # Handle uploaded images
+        # Handle uploaded images safely (never crash on read-only environments)
         images = []
         if 'product_files' in self.request.files:
-            upload_dir = STATIC_DIR / 'images' / 'products'
-            upload_dir.mkdir(parents=True, exist_ok=True)
-            for f in self.request.files['product_files']:
-                fname = f"{int(datetime.now().timestamp())}_{f['filename'].replace(' ', '_')}"
-                fpath = upload_dir / fname
-                with open(fpath, 'wb') as up:
-                    up.write(f['body'])
-                images.append(f"/static/images/products/{fname}")
+            try:
+                upload_dir = STATIC_DIR / 'images' / 'products'
+                upload_dir.mkdir(parents=True, exist_ok=True)
+                for f in self.request.files['product_files']:
+                    fname = f"{int(datetime.now().timestamp())}_{f['filename'].replace(' ', '_')}"
+                    fpath = upload_dir / fname
+                    with open(fpath, 'wb') as up:
+                        up.write(f['body'])
+                    images.append(f"/static/images/products/{fname}")
+            except Exception as e:
+                logger.warning("Local disk upload skipped or read-only: %s", e)
 
         # Handle image URLs
         urls_text = self.get_argument("image_urls", "").strip()
@@ -939,14 +945,17 @@ class AdminProductEditHandler(BaseHandler):
 
         images = []
         if 'product_files' in self.request.files:
-            upload_dir = STATIC_DIR / 'images' / 'products'
-            upload_dir.mkdir(parents=True, exist_ok=True)
-            for f in self.request.files['product_files']:
-                fname = f"{int(datetime.now().timestamp())}_{f['filename'].replace(' ', '_')}"
-                fpath = upload_dir / fname
-                with open(fpath, 'wb') as up:
-                    up.write(f['body'])
-                images.append(f"/static/images/products/{fname}")
+            try:
+                upload_dir = STATIC_DIR / 'images' / 'products'
+                upload_dir.mkdir(parents=True, exist_ok=True)
+                for f in self.request.files['product_files']:
+                    fname = f"{int(datetime.now().timestamp())}_{f['filename'].replace(' ', '_')}"
+                    fpath = upload_dir / fname
+                    with open(fpath, 'wb') as up:
+                        up.write(f['body'])
+                    images.append(f"/static/images/products/{fname}")
+            except Exception as e:
+                logger.warning("Local disk upload skipped or read-only: %s", e)
 
         urls_text = self.get_argument("image_urls", "").strip()
         if urls_text:
@@ -1228,6 +1237,25 @@ class AdminSettingsSaveHandler(BaseHandler):
             dal.update_setting(k, self.get_argument(k, ""))
         self.render_template("admin/settings.html", active_page='settings', settings=dal.get_store_settings(), success_msg="Store information saved.")
 
+class AdminUploadImageHandler(BaseHandler):
+    def post(self):
+        self.require_admin()
+        file_bytes = b''
+        filename = "product.jpg"
+        if 'file' in self.request.files:
+            f = self.request.files['file'][0]
+            file_bytes = f['body']
+            filename = f['filename']
+        elif self.request.body:
+            file_bytes = self.request.body
+
+        if not file_bytes:
+            self.write({'success': False, 'error': 'No file received.'})
+            return
+
+        upload_res = ImageService.upload_image_bytes(file_bytes, filename)
+        self.write(upload_res)
+
 # ----------------- Application Setup -----------------
 def make_app():
     handlers = [
@@ -1282,6 +1310,7 @@ def make_app():
         (r"/admin/products/new", AdminProductNewHandler),
         (r"/admin/products/edit/([0-9]+)", AdminProductEditHandler),
         (r"/admin/products/delete", AdminProductDeleteHandler),
+        (r"/api/admin/upload-image", AdminUploadImageHandler),
         (r"/admin/categories", AdminCategoriesHandler),
         (r"/admin/categories/new", AdminCategoryNewHandler),
         (r"/admin/categories/delete", AdminCategoryDeleteHandler),
@@ -1324,11 +1353,7 @@ def main():
     import seed
     seed.seed_database()
 
-    app = make_app()
     port = Config.PORT
-    server = tornado.httpserver.HTTPServer(app)
-    server.listen(port, address="0.0.0.0")
-
     print(f"\n" + "="*60, flush=True)
     print(f"  *** SHUBHASHTU FASHION E-COMMERCE IS LIVE! ***", flush=True)
     print(f"  Brand Tagline: \"{Config.BRAND_TAGLINE}\"", flush=True)
@@ -1337,6 +1362,20 @@ def main():
     print(f"  Admin Login:   {Config.ADMIN_EMAIL} / {Config.ADMIN_PASSWORD}", flush=True)
     print(f"="*60 + "\n", flush=True)
 
+    if not HAS_TORNADO:
+        from wsgiref.simple_server import make_server
+        from api.index import app as wsgi_app
+        print("  Running with Python Built-in WSGI Server...")
+        httpd = make_server('0.0.0.0', port, wsgi_app)
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\nServer stopped.")
+        return
+
+    app = make_app()
+    server = tornado.httpserver.HTTPServer(app)
+    server.listen(port, address="0.0.0.0")
     tornado.ioloop.IOLoop.current().start()
 
 if __name__ == "__main__":

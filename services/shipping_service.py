@@ -10,7 +10,10 @@ import re
 import json
 import logging
 from datetime import datetime, timedelta
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
 
 logger = logging.getLogger(__name__)
 

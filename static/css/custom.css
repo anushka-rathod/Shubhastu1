@@ -351,3 +351,29 @@ h1, h2, h3, h4, .font-serif {
   }
 }
 
+/* Sticky Mobile Buy Bar Transitions & Safe Area */
+#sticky-mobile-buy-bar {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* Mobile Responsive Positioning for Floating Actions (Prevents overlap with Sticky Bar) */
+@media (max-width: 768px) {
+  .ai-stylist-float {
+    bottom: 84px !important;
+    right: 14px !important;
+    padding: 8px 14px !important;
+    font-size: 10px !important;
+  }
+  .whatsapp-float {
+    bottom: 84px !important;
+    left: 14px !important;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 24px !important;
+  }
+  #aiStylistDrawer {
+    bottom: 80px !important;
+  }
+}
+

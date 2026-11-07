@@ -10,7 +10,10 @@ import hmac
 import hashlib
 import json
 import logging
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
 from config import Config
 
 logger = logging.getLogger(__name__)
@@ -24,10 +27,11 @@ class PaymentService:
         """Returns True only if both Razorpay Key ID and Secret are provided."""
         return bool(self.key_id and self.key_secret and self.key_id.strip() and self.key_secret.strip())
 
-    def create_order(self, amount_inr: float, receipt: str, notes: dict = None) -> dict:
+    def create_order(self, amount_inr: float, receipt: str = None, receipt_id: str = None, notes: dict = None, **kwargs) -> dict:
         """
         Creates a server-side Razorpay order.
         Amount is converted to paise (INR 100 = 10000 paise).
+        Accepts either 'receipt' or 'receipt_id' for receipt reference.
         """
         if not self.is_razorpay_configured():
             return {
@@ -36,11 +40,12 @@ class PaymentService:
                 'error': 'Razorpay API keys (Key ID and Key Secret) are not yet configured in store settings or .env file.'
             }
 
+        receipt_val = str(receipt or receipt_id or 'order_rcpt')[:40]
         amount_paise = int(round(amount_inr * 100))
         payload = {
             'amount': amount_paise,
             'currency': 'INR',
-            'receipt': str(receipt)[:40],
+            'receipt': receipt_val,
             'notes': notes or {}
         }
 

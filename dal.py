@@ -513,10 +513,10 @@ def create_order(order_data: dict, items: list[dict]) -> dict:
                     selected_size, selected_color, mrp, price, quantity, total_price
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                order_id, it.get('product_id'), it['product_name'],
-                it.get('product_image', ''), it.get('sku', ''),
+                order_id, it.get('product_id'), it.get('product_name', it.get('name', '')),
+                it.get('product_image', it.get('primary_image', '')), it.get('sku', ''),
                 it.get('selected_size', 'Free Size'), it.get('selected_color', ''),
-                it.get('mrp', it['price']), it['price'], it['quantity'],
+                it.get('mrp', it.get('price', 0.0)), it['price'], it['quantity'],
                 round(it['price'] * it['quantity'], 2)
             ))
 

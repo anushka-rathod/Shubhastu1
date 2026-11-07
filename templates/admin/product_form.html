@@ -111,30 +111,137 @@
 
         <!-- Images Card -->
         <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 text-xs">
-            <h3 class="font-serif text-base font-bold text-gray-900 pb-3 border-b border-gray-100">Product Images</h3>
-
-            <div>
-                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Upload Product Images from Computer</label>
-                <input type="file" name="product_files" multiple accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50">
-                <p class="text-[11px] text-gray-400 mt-1">Supports JPG, PNG, WEBP. You can select multiple images.</p>
+            <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                <h3 class="font-serif text-base font-bold text-gray-900">Product Images (Cloud Storage Safe)</h3>
+                <span class="text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold">
+                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Vercel & CDN Ready
+                </span>
             </div>
 
+            <!-- Fast Computer File Selector (Direct Cloud Upload) -->
             <div>
-                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Or Add Image URLs (One URL per line)</label>
-                <textarea name="image_urls" rows="3" placeholder="https://images.unsplash.com/photo-..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold">{% if product and product.images %}{% for img in product.images %}{{ img.image_url }}&#10;{% endfor %}{% endif %}</textarea>
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Upload Images from Computer or Phone</label>
+                <div class="flex items-center gap-3">
+                    <input type="file" id="client-image-picker" multiple accept="image/*" onchange="handleAdminImageUpload(this)" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-xs">
+                </div>
+                <p id="upload-status" class="text-[11px] text-gray-500 mt-1.5 flex items-center gap-1">
+                    <i class="fa-solid fa-circle-info text-gold"></i> Selected files are automatically optimized and added to the gallery below.
+                </p>
             </div>
 
-            {% if product and product.images and product.images|length > 0 %}
+            <!-- Image URLs List -->
             <div>
-                <span class="block font-bold text-gray-700 mb-2">Current Images Preview:</span>
-                <div class="flex items-center gap-3 overflow-x-auto pb-2">
-                    {% for img in product.images %}
-                    <img src="{{ img.image_url }}" alt="Preview" class="w-16 h-20 object-cover rounded border border-gray-200">
-                    {% endfor %}
+                <label class="block font-bold text-gray-800 uppercase tracking-wider mb-1">Image URLs (One URL per line)</label>
+                <textarea name="image_urls" id="image_urls_input" rows="3" oninput="renderImagePreviews()" placeholder="https://images.unsplash.com/photo-...&#10;https://res.cloudinary.com/..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold font-mono text-[11px]">{% if product and product.images %}{% for img in product.images %}{{ img.image_url }}&#10;{% endfor %}{% endif %}</textarea>
+            </div>
+
+            <!-- Live Previews Grid -->
+            <div>
+                <span class="block font-bold text-gray-700 mb-2">Live Gallery Preview:</span>
+                <div id="live-images-preview" class="flex items-center gap-3 overflow-x-auto pb-2 min-h-[90px]">
+                    {% if product and product.images and product.images|length > 0 %}
+                        {% for img in product.images %}
+                        <div class="relative group flex-shrink-0">
+                            <img src="{{ img.image_url }}" alt="Preview" class="w-16 h-20 object-cover rounded-lg border border-gray-200 shadow-sm">
+                            <button type="button" onclick="removeImageUrl('{{ img.image_url }}')" class="absolute -top-1.5 -right-1.5 bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow hover:bg-rose-700 transition" title="Remove image">
+                                &times;
+                            </button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-xs text-gray-400 italic">No images added yet.</p>
+                    {% endif %}
                 </div>
             </div>
-            {% endif %}
         </div>
+
+        <script>
+            // Client-side image handler: Uploads without triggering Vercel read-only filesystem errors
+            async function handleAdminImageUpload(input) {
+                const files = input.files;
+                if (!files || files.length === 0) return;
+                const statusEl = document.getElementById('upload-status');
+                const urlsTextarea = document.getElementById('image_urls_input');
+
+                statusEl.innerHTML = `<span class="text-gold font-semibold"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Processing ${files.length} image(s)...</span>`;
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    try {
+                        const res = await fetch('/api/admin/upload-image', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await res.json();
+                        if (data.success && data.url) {
+                            const current = urlsTextarea.value.trim();
+                            urlsTextarea.value = current ? current + '\n' + data.url : data.url;
+                        } else {
+                            // Fallback: read as data URI if endpoint is unavailable
+                            await new Promise((resolve) => {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    const current = urlsTextarea.value.trim();
+                                    urlsTextarea.value = current ? current + '\n' + e.target.result : e.target.result;
+                                    resolve();
+                                };
+                                reader.readAsDataURL(file);
+                            });
+                        }
+                    } catch (err) {
+                        console.warn("Upload error, using local data URL fallback:", err);
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const current = urlsTextarea.value.trim();
+                            urlsTextarea.value = current ? current + '\n' + e.target.result : e.target.result;
+                            renderImagePreviews();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+                statusEl.innerHTML = `<span class="text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Images added successfully!</span>`;
+                renderImagePreviews();
+                input.value = '';
+            }
+
+            function renderImagePreviews() {
+                const textarea = document.getElementById('image_urls_input');
+                const previewContainer = document.getElementById('live-images-preview');
+                const lines = textarea.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                
+                if (lines.length === 0) {
+                    previewContainer.innerHTML = '<p class="text-xs text-gray-400 italic">No images added yet.</p>';
+                    return;
+                }
+
+                previewContainer.innerHTML = lines.map((url, idx) => `
+                    <div class="relative group flex-shrink-0">
+                        <img src="${url}" alt="Preview ${idx+1}" class="w-16 h-20 object-cover rounded-lg border border-gray-200 shadow-sm" onerror="this.src='/static/images/logo.jpg'">
+                        <button type="button" onclick="removeImageByIndex(${idx})" class="absolute -top-1.5 -right-1.5 bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow hover:bg-rose-700 transition" title="Remove image">
+                            &times;
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            function removeImageByIndex(index) {
+                const textarea = document.getElementById('image_urls_input');
+                const lines = textarea.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                lines.splice(index, 1);
+                textarea.value = lines.join('\n');
+                renderImagePreviews();
+            }
+
+            function removeImageUrl(url) {
+                const textarea = document.getElementById('image_urls_input');
+                const lines = textarea.value.split('\n').map(l => l.trim()).filter(l => l.length > 0 && l !== url.trim());
+                textarea.value = lines.join('\n');
+                renderImagePreviews();
+            }
+        </script>
 
         <!-- Submit Button -->
         <div class="flex items-center justify-end gap-3">

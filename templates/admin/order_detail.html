@@ -78,6 +78,12 @@
                     <span class="font-bold text-gray-900 uppercase tracking-wider block mb-2 text-gold-dark">Customer Contact</span>
                     <p class="font-bold text-gray-800 text-sm">{{ order.customer_name }}</p>
                     <p class="text-gray-600 mt-1"><i class="fa-solid fa-phone text-gray-400 mr-1.5"></i> {{ order.customer_phone }}</p>
+                    <a href="https://wa.me/{{ order.customer_phone|replace('+', '')|replace(' ', '')|replace('-', '') }}?text={{ ('Namaste ' ~ order.customer_name ~ '! Shubhashtu Fashion here regarding your order #' ~ order.order_number ~ ' (Status: ' ~ order.order_status ~ ').')|urlencode }}" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs shadow-sm transition">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Message Customer on WhatsApp
+                    </a>
                     <p class="text-gray-600 mt-1"><i class="fa-regular fa-envelope text-gray-400 mr-1.5"></i> {{ order.customer_email }}</p>
                     {% if order.customer_notes %}
                     <div class="mt-3 p-2.5 bg-rose-50/50 rounded border border-rose-100 text-rose-900">

@@ -197,6 +197,38 @@ async function updateCartItemQty(cartItemId, newQty) {
     }
 }
 
+// ----------------- Pure WhatsApp Order Generator -----------------
+async function checkoutBagViaWhatsApp(supportPhone = null) {
+    try {
+        const res = await fetch('/api/cart');
+        const cart = await res.json();
+        if (!cart.items || cart.items.length === 0) {
+            showToast('Your shopping bag is empty! Add items first.', 'error');
+            return;
+        }
+
+        const phone = supportPhone || window.STORE_WHATSAPP || '919876543210';
+        let itemsList = '';
+        cart.items.forEach((item, index) => {
+            const size = item.selected_size ? `(${item.selected_size})` : '';
+            const price = Number(item.item_total || item.total_price || (item.price * item.quantity)).toFixed(2);
+            itemsList += `${index + 1}. *${item.name}* ${size} x ${item.quantity} - ₹${price}\n`;
+        });
+
+        const threshold = cart.free_shipping_threshold || 999;
+        const deliveryText = cart.subtotal >= threshold ? 'FREE' : '₹70.00 Standard Delivery';
+        const total = cart.subtotal >= threshold ? cart.subtotal : (cart.subtotal + 70.0);
+
+        const text = `Namaste Shubhashtu Fashion! 🙏\n\nI want to place an order for my shopping bag:\n\n${itemsList}\n📦 *Total Items:* ${cart.item_count}\n💵 *Subtotal:* ₹${Number(cart.subtotal).toFixed(2)}\n🚚 *Delivery:* ${deliveryText}\n💰 *Total Payable:* ₹${Number(total).toFixed(2)}\n\nPlease confirm availability and share your UPI QR code / GPay details to complete my payment. Thank you!`;
+
+        const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+        window.open(waUrl, '_blank');
+    } catch (e) {
+        console.error("WhatsApp checkout error:", e);
+        showToast('Could not initiate WhatsApp order. Please try again.', 'error');
+    }
+}
+
 // Remove from cart
 async function removeCartItem(cartItemId) {
     try {
@@ -538,5 +570,33 @@ function escapeHtml(text) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+// ----------------- Robust Clipboard Helper -----------------
+function copyToClipboard(text, successMessage = 'Copied to clipboard!') {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text)
+            .then(() => showToast(successMessage, 'success'))
+            .catch(() => fallbackCopy(text, successMessage));
+    } else {
+        fallbackCopy(text, successMessage);
+    }
+}
+
+function fallbackCopy(text, successMessage) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        showToast(successMessage, 'success');
+    } catch (err) {
+        showToast(text, 'info');
+    }
+    document.body.removeChild(textArea);
 }
 

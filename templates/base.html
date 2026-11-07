@@ -9,44 +9,56 @@
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="/static/images/logo.jpg">
 
-    <!-- Tailwind CSS (via CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Performance Optimizations: Preconnect & DNS-Prefetch -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="dns-prefetch" href="https://checkout.razorpay.com">
+
+    <!-- Preload Critical Luxury Stylesheet (Prevents FOUC & CLS) -->
+    <link rel="preload" href="/static/css/custom.css" as="style">
+    <link rel="stylesheet" href="/static/css/custom.css">
+
+    <!-- FontAwesome 6 Icons (Async non-blocking) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+
+    <!-- Optimized Tailwind CSS with Inlined Palette Config -->
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        gold: {
-                            DEFAULT: '#c59b27',
-                            light: '#dfb746',
-                            dark: '#9e7817'
-                        },
-                        blush: {
-                            50: '#fdf2f4',
-                            100: '#fce7ec',
-                            200: '#f7cbd6',
-                            300: '#f3b0bf',
-                            400: '#e68297',
-                            500: '#d75d78',
-                            600: '#c54a65',
-                            700: '#9d324b',
-                            800: '#7e2a3e',
-                            900: '#5c1f2e'
+        tailwind = {
+            config: {
+                theme: {
+                    extend: {
+                        colors: {
+                            gold: {
+                                DEFAULT: '#c59b27',
+                                light: '#dfb746',
+                                dark: '#9e7817'
+                            },
+                            blush: {
+                                50: '#fdf2f4',
+                                100: '#fce7ec',
+                                200: '#f7cbd6',
+                                300: '#f3b0bf',
+                                400: '#e68297',
+                                500: '#d75d78',
+                                600: '#c54a65',
+                                700: '#9d324b',
+                                800: '#7e2a3e',
+                                900: '#5c1f2e'
+                            }
                         }
                     }
                 }
             }
-        }
+        };
     </script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- FontAwesome 6 Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/static/css/custom.css">
-
-    <!-- Razorpay Checkout SDK -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Store WhatsApp Global Setting -->
+    <script>
+        window.STORE_WHATSAPP = "{{ store_settings.support_whatsapp|default('919876543210') }}";
+    </script>
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -290,12 +302,14 @@
             </div>
             <p id="cart-drawer-savings" class="text-xs text-emerald-600 font-semibold mb-3"></p>
             <p class="text-[11px] text-gray-500 mb-4">Taxes and delivery calculated at checkout.</p>
-            <div class="grid grid-cols-2 gap-2.5">
-                <a href="/cart" onclick="toggleCartDrawer(false)" class="py-2.5 text-center text-xs font-semibold text-gray-800 bg-rose-50 hover:bg-rose-100 rounded-lg transition border border-rose-200">
-                    View Bag
-                </a>
-                <a href="/checkout" onclick="toggleCartDrawer(false)" class="btn-luxury-gold py-2.5 text-center text-xs font-bold rounded-lg uppercase tracking-wider flex items-center justify-center gap-1.5">
-                    <span>Checkout</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+            <div class="space-y-2">
+                <button type="button" 
+                        onclick="checkoutBagViaWhatsApp()" 
+                        class="w-full py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01]">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> Complete Order on WhatsApp
+                </button>
+                <a href="/cart" onclick="toggleCartDrawer(false)" class="block text-center text-xs font-semibold text-gray-500 hover:text-gold transition pt-1">
+                    <i class="fa-solid fa-bag-shopping text-xs mr-1"></i> View Detailed Bag
                 </a>
             </div>
         </div>
@@ -306,16 +320,27 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Floating WhatsApp Customer Support -->
-    <a href="https://wa.me/{{ store_settings.support_whatsapp|default('919876543210') }}?text={{ 'Hi Shubhashtu Fashion, I would like to enquire about your collection.'|urlencode }}" 
-       target="_blank" 
-       rel="noopener" 
-       class="whatsapp-float group" 
-       title="Chat with us on WhatsApp">
-        <i class="fa-brands fa-whatsapp"></i>
-    </a>
+    <!-- Floating WhatsApp Concierge Widget (1-Click Instant Sales & Styling) - Bottom Left -->
+    <div class="fixed bottom-20 sm:bottom-6 left-3.5 sm:left-6 z-30 flex items-center gap-2 group">
+        <a href="https://wa.me/{{ store_settings.support_whatsapp|default('919876543210') }}?text={{ 'Namaste Shubhashtu Fashion! I would love some styling advice or help with an order.'|urlencode }}" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center shadow-xl hover:shadow-2xl transition transform hover:scale-110" 
+           title="Chat with Stylist on WhatsApp"
+           aria-label="Chat with Stylist on WhatsApp">
+            <span class="absolute -inset-1 rounded-full bg-[#25D366] opacity-30 animate-ping"></span>
+            <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl relative z-10"></i>
+        </a>
+        <a href="https://wa.me/{{ store_settings.support_whatsapp|default('919876543210') }}?text={{ 'Namaste Shubhashtu Fashion! I would love some styling advice or help with an order.'|urlencode }}" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-emerald-200 text-gray-800 text-xs font-semibold shadow-lg hover:border-emerald-500 hover:text-emerald-700 transition transform hover:translate-x-0.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Chat with Stylist 🙏</span>
+        </a>
+    </div>
 
-    <!-- Floating AI Stylist Concierge Button -->
+    <!-- Floating AI Stylist Concierge Button - Bottom Right -->
     <button id="aiStylistBtn" onclick="toggleAiStylist()" class="ai-stylist-float" title="Ask Shubhashtu AI Stylist">
         <i class="fa-solid fa-wand-magic-sparkles text-gold animate-bounce"></i>
         <span class="hidden sm:inline">Ask AI Stylist</span>
@@ -476,6 +501,7 @@
             </div>
         </div>
     </footer>
+
 
     <!-- Main JS Scripts -->
     <script src="/static/js/main.js"></script>

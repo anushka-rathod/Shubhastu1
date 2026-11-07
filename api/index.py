@@ -25,7 +25,7 @@ from config import Config
 
 # Detect serverless / read-only filesystem environment (e.g. Vercel / AWS Lambda)
 is_serverless = os.environ.get('VERCEL') == '1' or os.environ.get('AWS_LAMBDA_FUNCTION_NAME') is not None or not os.access(PROJECT_ROOT, os.W_OK)
-if is_serverless:
+if is_serverless and not getattr(Config, 'DATABASE_URL', ''):
     Config.DATABASE_PATH = '/tmp/database.sqlite'
     tmp_db = Path('/tmp/database.sqlite')
     src_db = PROJECT_ROOT / 'database.sqlite'
@@ -37,20 +37,26 @@ if is_serverless:
 
 import db
 import dal
-from services.auth_service import hash_password, verify_password, generate_session_id
+from services.auth_service import (
+    hash_password, verify_password, generate_session_id,
+    sign_cookie, verify_signed_cookie,
+    generate_signed_reset_token, verify_signed_reset_token
+)
+from services.image_service import ImageService
 from services.shipping_service import ShippingService
 from services.payment_service import PaymentService
 from services.invoice_service import build_invoice_context, format_inr
 from services.email_service import EmailService
-import jinja2
-
-# Jinja2 environment setup
-TEMPLATES_DIR = PROJECT_ROOT / 'templates'
-jinja_env = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(str(TEMPLATES_DIR)),
-    autoescape=jinja2.select_autoescape(['html', 'xml'])
-)
-jinja_env.filters['format_inr'] = format_inr
+try:
+    import jinja2
+    TEMPLATES_DIR = PROJECT_ROOT / 'templates'
+    jinja_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(str(TEMPLATES_DIR)),
+        autoescape=jinja2.select_autoescape(['html', 'xml'])
+    )
+    jinja_env.filters['format_inr'] = format_inr
+except ImportError:
+    jinja_env = None
 
 # Ensure database tables, catalogue, and Admin account are 100% ready
 def ensure_database_ready():
@@ -103,12 +109,26 @@ def get_current_user(cookie_header):
     if not cookie_header:
         return None
     c_map = parse_cookies(cookie_header)
-    if 'shubhashtu_user' in c_map:
+    raw_cookie = c_map.get('shubhashtu_user', '')
+    if not raw_cookie:
+        return None
+
+    # 1. Cryptographic HMAC signed cookie verification (prevents any cookie tampering)
+    verified_uid = verify_signed_cookie(raw_cookie, Config.COOKIE_SECRET)
+    if verified_uid:
         try:
-            user_id = int(c_map['shubhashtu_user'])
-            return dal.get_user_by_id(user_id)
+            return dal.get_user_by_id(int(verified_uid))
         except Exception:
             return None
+
+    # 2. Legacy fallback for existing customer sessions (strictly disallow admin escalation)
+    try:
+        legacy_id = int(raw_cookie)
+        user = dal.get_user_by_id(legacy_id)
+        if user and user.get('role') != 'admin':
+            return user
+    except Exception:
+        pass
     return None
 
 def app(environ, start_response):
@@ -161,6 +181,10 @@ def app(environ, start_response):
     ]
 
     def render(template_name, **ctx):
+        if not jinja_env:
+            start_response('200 OK', res_headers)
+            fallback_html = f"<html><body><h1>Template: {template_name}</h1><h2>Admin Dashboard</h2><p>Running in offline mode without Jinja2.</p></body></html>"
+            return [fallback_html.encode('utf-8')]
         tmpl = jinja_env.get_template(template_name)
         store_settings = dal.get_store_settings()
         cart_count = dal.get_cart_item_count(session_id, user_id)
@@ -212,7 +236,7 @@ def app(environ, start_response):
                 content = f.read()
             start_response('200 OK', [
                 ('Content-Type', ctype),
-                ('Cache-Control', 'public, max-age=86400')
+                ('Cache-Control', 'public, max-age=31536000, immutable')
             ])
             return [content]
         start_response('404 Not Found', [('Content-Type', 'text/plain')])
@@ -279,12 +303,9 @@ def app(environ, start_response):
         return render('cart.html', cart=cart, active_nav='cart')
 
     # 5. Checkout Page
+    # 5. Checkout (WhatsApp-First: Redirects to Bag for 1-Click WhatsApp Ordering)
     if path == '/checkout':
-        cart = dal.get_cart(session_id, user_id)
-        if not cart['items']:
-            return redirect('/cart')
-        addresses = dal.get_user_addresses(user_id) if user_id else []
-        return render('checkout.html', cart=cart, addresses=addresses)
+        return redirect('/cart')
 
     # 6. Wishlist Page
     if path == '/wishlist':
@@ -358,7 +379,8 @@ def app(environ, start_response):
             if user and verify_password(pwd, user['password_hash'], user['salt']):
                 # Merge guest cart into user account
                 dal.merge_guest_cart(session_id, user['id'])
-                cookie_val = f'shubhashtu_user={user["id"]}; Path=/; HttpOnly; SameSite=Lax; Max-Age=1209600'
+                signed_user_val = sign_cookie(str(user['id']), Config.COOKIE_SECRET)
+                cookie_val = f'shubhashtu_user={signed_user_val}; Path=/; HttpOnly; SameSite=Lax; Max-Age=1209600'
                 if redirect_url and redirect_url.startswith('/'):
                     target = redirect_url
                 elif user.get('role') == 'admin':
@@ -388,25 +410,49 @@ def app(environ, start_response):
             h, s = hash_password(pwd)
             uid = dal.create_user(email, h, s, name, phone, role='customer')
             dal.merge_guest_cart(session_id, uid)
-            cookie_val = f'shubhashtu_user={uid}; Path=/; HttpOnly; SameSite=Lax; Max-Age=1209600'
+            signed_user_val = sign_cookie(str(uid), Config.COOKIE_SECRET)
+            cookie_val = f'shubhashtu_user={signed_user_val}; Path=/; HttpOnly; SameSite=Lax; Max-Age=1209600'
             target = redirect_url if redirect_url and redirect_url.startswith('/') else '/profile'
             return redirect(target, [cookie_val])
         return render('login.html', is_register=True, redirect_url=redirect_url)
 
     if path == '/forgot-password':
+        token = q('token').strip() or p('token').strip()
         if method == 'POST':
+            # Case 1: Submitting new password with a verified cryptographic token
+            if token:
+                verified_email = verify_signed_reset_token(token, Config.SECRET_KEY)
+                if not verified_email:
+                    return render('forgot_password.html', error="Invalid or expired reset token. Please request a new link.", token=None)
+                new_pwd = p('new_password').strip()
+                if len(new_pwd) < 6:
+                    return render('forgot_password.html', error="Password must be at least 6 characters.", token=token)
+                u = dal.get_user_by_email(verified_email)
+                if u:
+                    ph, ps = hash_password(new_pwd)
+                    dal.update_user_password(u['id'], ph, ps)
+                    return render('forgot_password.html', message="Your password has been successfully reset! You can now sign in.", token=None)
+                return render('forgot_password.html', error="User account not found.", token=None)
+
+            # Case 2: Requesting reset link for email
             email = p('email').strip().lower()
-            new_pwd = p('new_password').strip()
-            u = dal.get_user_by_email(email)
-            if u and len(new_pwd) >= 6:
-                ph, ps = hash_password(new_pwd)
-                dal.update_user_password(u['id'], ph, ps)
-                return render('forgot_password.html', message="Your password has been successfully reset! You can now sign in.")
-            elif not u:
-                return render('forgot_password.html', error="No account found matching that email address.")
-            else:
-                return render('forgot_password.html', error="Password must be at least 6 characters.")
-        return render('forgot_password.html')
+            if email:
+                u = dal.get_user_by_email(email)
+                if u:
+                    reset_token = generate_signed_reset_token(email, Config.SECRET_KEY)
+                    reset_url = f"/forgot-password?token={reset_token}"
+                    return render('forgot_password.html', message=f"If an account exists for {email}, a secure reset link has been prepared.", token=None, dev_link=reset_url if Config.DEBUG else None)
+                return render('forgot_password.html', message=f"If an account exists for {email}, a secure reset link has been prepared.", token=None)
+            return render('forgot_password.html', error="Please enter a valid email address.", token=None)
+
+        # GET request with token
+        if token:
+            verified_email = verify_signed_reset_token(token, Config.SECRET_KEY)
+            if not verified_email:
+                return render('forgot_password.html', error="This reset link is invalid or has expired. Please request a new one.", token=None)
+            return render('forgot_password.html', token=token, email=verified_email)
+
+        return render('forgot_password.html', token=None)
 
     if path == '/logout':
         return redirect('/', ['shubhashtu_user=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0'])
@@ -710,7 +756,7 @@ def app(environ, start_response):
         created = dal.create_order(order_data, order_items)
         rzp_res = payment_svc.create_order(
             amount_inr=total,
-            receipt_id=created['order_number'],
+            receipt=created['order_number'],
             notes={'internal_order_id': str(created['id'])}
         )
         if not rzp_res['success']:
@@ -744,6 +790,61 @@ def app(environ, start_response):
         if order:
             EmailService.send_order_confirmation(order['customer_email'], order, dal.get_order_items(oid))
         return json_resp({'success': True})
+
+    # Razorpay Asynchronous Webhook Endpoint (Guarantees captured payments are recorded)
+    if path in ('/api/payment/razorpay/webhook', '/api/checkout/razorpay/webhook') and method == 'POST':
+        sig = environ.get('HTTP_X_RAZORPAY_SIGNATURE', '')
+        webhook_secret = dal.get_setting('razorpay_webhook_secret') or Config.RAZORPAY_WEBHOOK_SECRET
+        payment_svc = PaymentService(dal.get_setting('razorpay_key_id'), dal.get_setting('razorpay_key_secret'))
+        if not payment_svc.verify_webhook_signature(body_bytes, sig, webhook_secret):
+            return json_resp({'error': 'Invalid webhook signature'}, status='400 Bad Request')
+        try:
+            event_data = json.loads(body_bytes.decode('utf-8'))
+            event = event_data.get('event')
+            if event == 'payment.captured':
+                payment = event_data.get('payload', {}).get('payment', {}).get('entity', {})
+                notes = payment.get('notes', {})
+                order_id_str = notes.get('internal_order_id')
+                if order_id_str:
+                    oid = int(order_id_str)
+                    dal.update_payment_status(oid, 'paid', payment.get('order_id'), payment.get('id'), sig)
+                    order = dal.get_order_by_id(oid)
+                    if order:
+                        EmailService.send_order_confirmation(order['customer_email'], order, dal.get_order_items(oid))
+            return json_resp({'status': 'ok'})
+        except Exception as e:
+            return json_resp({'error': str(e)}, status='500 Internal Server Error')
+
+    # Admin Cloud Image Upload (Safe for Vercel Serverless Read-Only Filesystem)
+    if path == '/api/admin/upload-image' and method == 'POST':
+        if not current_user or current_user.get('role') != 'admin':
+            return json_resp({'success': False, 'error': 'Unauthorized'}, status='401 Unauthorized')
+
+        file_bytes = b''
+        filename = "product.jpg"
+
+        if 'multipart/form-data' in content_type:
+            boundary_match = re.search(r'boundary=([^\s;]+)', content_type)
+            if boundary_match:
+                boundary = boundary_match.group(1).strip('"\'').encode('utf-8')
+                parts = body_bytes.split(b'--' + boundary)
+                for part in parts:
+                    if b'filename="' in part:
+                        fn_match = re.search(r'filename="([^"]+)"', part.decode('utf-8', 'ignore'))
+                        if fn_match:
+                            filename = fn_match.group(1)
+                        header_end = part.find(b'\r\n\r\n')
+                        if header_end != -1:
+                            file_bytes = part[header_end+4:].rstrip(b'\r\n')
+                            break
+        elif body_bytes:
+            file_bytes = body_bytes
+
+        if not file_bytes:
+            return json_resp({'success': False, 'error': 'No image data received.'})
+
+        upload_res = ImageService.upload_image_bytes(file_bytes, filename)
+        return json_resp(upload_res)
 
     # ==================== 13. ADMIN PANEL (Protected) ====================
     if path.startswith('/admin'):
@@ -994,14 +1095,12 @@ def app(environ, start_response):
             return render('admin/payments.html', active_page='payments', settings=settings, has_keys=has_keys)
 
         if path in ('/admin/payments/save', '/admin/payments') and method == 'POST':
-            dal.update_setting('razorpay_key_id', p('razorpay_key_id').strip())
-            dal.update_setting('razorpay_key_secret', p('razorpay_key_secret').strip())
-            dal.update_setting('razorpay_webhook_secret', p('razorpay_webhook_secret').strip())
-            dal.update_setting('razorpay_test_mode', '1' if p('razorpay_test_mode') else '0')
+            if p('support_whatsapp'): dal.update_setting('support_whatsapp', p('support_whatsapp').strip())
+            if p('store_upi_id'): dal.update_setting('store_upi_id', p('store_upi_id').strip())
+            if p('payment_note'): dal.update_setting('payment_note', p('payment_note').strip())
             dal.update_setting('cod_enabled', '1' if p('cod_enabled') else '0')
             settings = dal.get_store_settings()
-            has_keys = bool(settings.get('razorpay_key_id') and settings.get('razorpay_key_secret'))
-            return render('admin/payments.html', active_page='payments', settings=settings, has_keys=has_keys, success_msg="Payment credentials and options updated.")
+            return render('admin/payments.html', active_page='payments', settings=settings, success_msg="WhatsApp and UPI payment settings saved successfully.")
 
         # Reviews Moderation
         if path == '/admin/reviews':
@@ -1031,3 +1130,19 @@ def app(environ, start_response):
     # Fallback 404
     start_response('404 Not Found', [('Content-Type', 'text/html; charset=utf-8')])
     return [b'<h1>404 Not Found</h1><p><a href="/">Return to Shubhashtu Fashion</a></p>']
+
+if __name__ == '__main__':
+    from wsgiref.simple_server import make_server
+    port = Config.PORT
+    print(f"\n" + "="*60, flush=True)
+    print(f"  *** SHUBHASHTU FASHION E-COMMERCE IS LIVE! ***", flush=True)
+    print(f"  Brand Tagline: \"{Config.BRAND_TAGLINE}\"", flush=True)
+    print(f"  Store URL:     http://localhost:{port}", flush=True)
+    print(f"  Admin Portal:  http://localhost:{port}/admin", flush=True)
+    print(f"  Admin Login:   {Config.ADMIN_EMAIL} / {Config.ADMIN_PASSWORD}", flush=True)
+    print(f"="*60 + "\n", flush=True)
+    httpd = make_server('0.0.0.0', port, app)
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\nServer stopped.")

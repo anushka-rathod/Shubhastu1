@@ -31,6 +31,12 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'shubhashtu-super-secret-key-2026-luxury-fashion-store')
     COOKIE_SECRET = os.environ.get('COOKIE_SECRET', 'shubhashtu-cookie-secret-token-gold-blush-98432')
     DATABASE_PATH = os.environ.get('DATABASE_PATH', str(BASE_DIR / 'database.sqlite'))
+    DATABASE_URL = os.environ.get('DATABASE_URL', '')  # Cloud PostgreSQL (Supabase / Neon / Railway)
+    
+    # Cloudinary Cloud Media Storage (for fast CDN product image hosting)
+    CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+    CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY', '')
+    CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '')
     
     # Brand details
     BRAND_NAME = os.environ.get('BRAND_NAME', 'Shubhashtu Fashion')
@@ -39,6 +45,7 @@ class Config:
     SUPPORT_WHATSAPP = os.environ.get('SUPPORT_WHATSAPP', '919876543210')
     SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL', 'care@shubhashtufashion.com')
     STORE_ADDRESS = os.environ.get('STORE_ADDRESS', 'Shubhashtu Studio, 402 Heritage Galleria, M.G. Road, Bengaluru, Karnataka - 560001')
+    STORE_UPI_ID = os.environ.get('STORE_UPI_ID', 'shubhashtu@upi')
     
     # Razorpay Payment Gateway
     RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
@@ -61,4 +68,8 @@ class Config:
     SMTP_USER = os.environ.get('SMTP_USER', '')
     SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD', '')
     SMTP_FROM = os.environ.get('SMTP_FROM', 'Shubhashtu Fashion <orders@shubhashtufashion.com>')
+    
+    # AI Fashion Stylist & Concierge
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 
