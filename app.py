@@ -75,6 +75,9 @@ class BaseHandler(tornado.web.RequestHandler):
         return None
 
     def get_session_id(self) -> str:
+        x_sid = self.request.headers.get('X-Session-ID', '').strip()
+        if x_sid and len(x_sid) >= 8:
+            return x_sid
         session_id = self.get_secure_cookie("shubhashtu_session")
         if session_id:
             return session_id.decode('utf-8')

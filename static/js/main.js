@@ -41,6 +41,29 @@ function formatINR(amount) {
     return '₹' + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+// Persistent Session Helper for Cart & Wishlist reliability across page refreshes
+function getPersistentSessionId() {
+    try {
+        let sid = localStorage.getItem('shubhashtu_sid');
+        if (!sid) {
+            sid = 'shb_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+            localStorage.setItem('shubhashtu_sid', sid);
+        }
+        return sid;
+    } catch (e) {
+        return '';
+    }
+}
+
+function getApiHeaders(extra = {}) {
+    const headers = { 'Content-Type': 'application/json', ...extra };
+    const sid = getPersistentSessionId();
+    if (sid) {
+        headers['X-Session-ID'] = sid;
+    }
+    return headers;
+}
+
 // ----------------- Cart Drawer Management -----------------
 function toggleCartDrawer(open = null) {
     const drawer = document.getElementById('cart-drawer');
@@ -51,7 +74,9 @@ function toggleCartDrawer(open = null) {
     const shouldOpen = open !== null ? open : !isOpen;
 
     if (shouldOpen) {
+        backdrop.style.display = 'block';
         backdrop.classList.remove('hidden');
+        backdrop.classList.remove('pointer-events-none');
         requestAnimationFrame(() => {
             backdrop.classList.remove('opacity-0');
             drawer.classList.remove('translate-x-full');
@@ -60,13 +85,17 @@ function toggleCartDrawer(open = null) {
     } else {
         drawer.classList.add('translate-x-full');
         backdrop.classList.add('opacity-0');
-        setTimeout(() => backdrop.classList.add('hidden'), 300);
+        backdrop.classList.add('pointer-events-none');
+        setTimeout(() => {
+            backdrop.classList.add('hidden');
+            backdrop.style.display = 'none';
+        }, 300);
     }
 }
 
 async function refreshCartDrawer() {
     try {
-        const res = await fetch('/api/cart');
+        const res = await fetch('/api/cart', { headers: getApiHeaders() });
         const data = await res.json();
         renderCartUI(data);
     } catch (err) {
@@ -157,7 +186,7 @@ async function addToCart(productId, quantity = 1, size = null, color = '', openD
         const body = { product_id: productId, quantity: Number(quantity) || 1, size: size || 'Free Size', color: color };
         const res = await fetch('/api/cart/add', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getApiHeaders(),
             body: JSON.stringify(body)
         });
         const data = await res.json();
@@ -181,7 +210,7 @@ async function updateCartItemQty(cartItemId, newQty) {
     try {
         const res = await fetch('/api/cart/update', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getApiHeaders(),
             body: JSON.stringify({ cart_item_id: cartItemId, quantity: newQty })
         });
         const data = await res.json();
@@ -200,7 +229,7 @@ async function updateCartItemQty(cartItemId, newQty) {
 // ----------------- Pure WhatsApp Order Generator -----------------
 async function checkoutBagViaWhatsApp(supportPhone = null) {
     try {
-        const res = await fetch('/api/cart');
+        const res = await fetch('/api/cart', { headers: getApiHeaders() });
         const cart = await res.json();
         if (!cart.items || cart.items.length === 0) {
             showToast('Your shopping bag is empty! Add items first.', 'error');
@@ -234,7 +263,7 @@ async function removeCartItem(cartItemId) {
     try {
         const res = await fetch('/api/cart/remove', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getApiHeaders(),
             body: JSON.stringify({ cart_item_id: cartItemId })
         });
         const data = await res.json();
@@ -255,7 +284,7 @@ async function toggleWishlist(productId, btnElement) {
     try {
         const res = await fetch('/api/wishlist/toggle', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getApiHeaders(),
             body: JSON.stringify({ product_id: productId })
         });
         const data = await res.json();
@@ -388,7 +417,9 @@ function toggleMobileNav() {
 
     const isClosed = nav.classList.contains('-translate-x-full');
     if (isClosed) {
+        backdrop.style.display = 'block';
         backdrop.classList.remove('hidden');
+        backdrop.classList.remove('pointer-events-none');
         requestAnimationFrame(() => {
             backdrop.classList.remove('opacity-0');
             nav.classList.remove('-translate-x-full');
@@ -396,7 +427,11 @@ function toggleMobileNav() {
     } else {
         nav.classList.add('-translate-x-full');
         backdrop.classList.add('opacity-0');
-        setTimeout(() => backdrop.classList.add('hidden'), 300);
+        backdrop.classList.add('pointer-events-none');
+        setTimeout(() => {
+            backdrop.classList.add('hidden');
+            backdrop.style.display = 'none';
+        }, 300);
     }
 }
 

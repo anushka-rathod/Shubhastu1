@@ -12,9 +12,7 @@ def seed_database(force: bool = False):
     init_db()
 
     with get_db() as conn:
-        print("Enriching database with Shubhashtu Fashion aesthetic catalogue...")
-
-        # 1. Admin User
+        # Guarantee admin user exists so store owner can always access /admin
         admin_exists = conn.execute("SELECT id FROM users WHERE email = ?", (Config.ADMIN_EMAIL,)).fetchone()
         if not admin_exists:
             admin_hash, admin_salt = hash_password(Config.ADMIN_PASSWORD)
@@ -22,6 +20,16 @@ def seed_database(force: bool = False):
                 INSERT INTO users (email, password_hash, salt, full_name, phone, role)
                 VALUES (?, ?, ?, ?, ?, 'admin')
             """, (Config.ADMIN_EMAIL, admin_hash, admin_salt, "Shubhashtu Store Owner", Config.SUPPORT_PHONE))
+
+        # Check if database has already been seeded.
+        # If products already exist or seed flag is set, NEVER overwrite or resurrect deleted products!
+        seeded_row = conn.execute("SELECT value FROM settings WHERE key = 'store_database_seeded'").fetchone()
+        prod_count_row = conn.execute("SELECT COUNT(*) FROM products").fetchone()
+        prod_count = prod_count_row[0] if prod_count_row else 0
+        if (seeded_row or prod_count > 0) and not force:
+            return
+
+        print("Enriching database with Shubhashtu Fashion aesthetic catalogue...")
 
         # Sample customer
         cust_exists = conn.execute("SELECT id FROM users WHERE email = 'ananya.sharma@example.com'").fetchone()
@@ -523,6 +531,12 @@ def seed_database(force: bool = False):
                         INSERT INTO reviews (product_id, customer_name, customer_email, rating, title, comment, is_verified_buyer, is_approved)
                         VALUES (?, ?, ?, ?, ?, ?, 1, 1)
                     """, (prow['id'], name, email, rating, title, comment))
+
+        conn.execute("""
+            INSERT INTO settings (key, value, description)
+            VALUES ('store_database_seeded', '1', 'Initial seeding completed')
+            ON CONFLICT(key) DO UPDATE SET value='1'
+        """)
 
         print("Aesthetic database enrichment completed successfully!")
 

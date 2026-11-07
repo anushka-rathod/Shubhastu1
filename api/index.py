@@ -99,7 +99,11 @@ def parse_cookies(cookie_header):
             cookies_map[name.strip()] = val.strip().strip('"\'')
     return cookies_map
 
-def get_session_id(cookie_header):
+def get_session_id(cookie_header, environ=None):
+    if environ:
+        x_sid = environ.get('HTTP_X_SESSION_ID', '').strip()
+        if x_sid and len(x_sid) >= 8:
+            return x_sid
     c_map = parse_cookies(cookie_header)
     if 'shubhashtu_session' in c_map and c_map['shubhashtu_session']:
         return c_map['shubhashtu_session']
@@ -143,7 +147,7 @@ def app(environ, start_response):
         return val[0] if val else default
 
     cookie_header = environ.get('HTTP_COOKIE', '')
-    session_id = get_session_id(cookie_header)
+    session_id = get_session_id(cookie_header, environ)
     current_user = get_current_user(cookie_header)
     user_id = current_user['id'] if current_user else None
 
@@ -164,7 +168,27 @@ def app(environ, start_response):
             json_data = json.loads(body_bytes.decode('utf-8'))
         except Exception:
             json_data = {}
-    elif ('application/x-www-form-urlencoded' in content_type or 'multipart/form-data' in content_type) and body_bytes:
+    elif 'multipart/form-data' in content_type and body_bytes:
+        try:
+            boundary_match = re.search(r'boundary=([^\s;]+)', content_type)
+            if boundary_match:
+                boundary = boundary_match.group(1).strip('"\'').encode('utf-8')
+                parts = body_bytes.split(b'--' + boundary)
+                for part in parts:
+                    header_end = part.find(b'\r\n\r\n')
+                    if header_end != -1:
+                        header = part[:header_end].decode('utf-8', 'ignore')
+                        body_val = part[header_end+4:].rstrip(b'\r\n')
+                        name_match = re.search(r'name="([^"]+)"', header)
+                        if name_match:
+                            fn_match = re.search(r'filename="([^"]*)"', header)
+                            if not fn_match or not fn_match.group(1):
+                                field_name = name_match.group(1)
+                                field_val = body_val.decode('utf-8', 'ignore')
+                                post_params.setdefault(field_name, []).append(field_val)
+        except Exception:
+            pass
+    elif ('application/x-www-form-urlencoded' in content_type or body_bytes) and body_bytes:
         try:
             post_params = urllib.parse.parse_qs(body_bytes.decode('utf-8', 'ignore'))
         except Exception:

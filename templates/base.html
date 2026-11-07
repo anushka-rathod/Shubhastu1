@@ -209,7 +209,7 @@
     </header>
 
     <!-- Mobile Navigation Drawer -->
-    <div id="mobile-nav-backdrop" onclick="toggleMobileNav()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity"></div>
+    <div id="mobile-nav-backdrop" onclick="toggleMobileNav()" style="display: none;" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 pointer-events-none transition-opacity"></div>
     <div id="mobile-nav-drawer" class="fixed top-0 bottom-0 left-0 w-80 max-w-full bg-white z-50 -translate-x-full transition-transform shadow-2xl flex flex-col">
         <div class="p-4 border-b border-rose-100 flex items-center justify-between bg-rose-50/50">
             <div class="flex items-center gap-2.5">
@@ -256,7 +256,7 @@
     </div>
 
     <!-- 3. Mini Cart Slide-over Drawer -->
-    <div id="cart-drawer-backdrop" onclick="toggleCartDrawer(false)" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity"></div>
+    <div id="cart-drawer-backdrop" onclick="toggleCartDrawer(false)" style="display: none;" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 pointer-events-none transition-opacity"></div>
     <div id="cart-drawer" class="fixed top-0 bottom-0 right-0 w-96 max-w-full bg-white z-50 translate-x-full transition-transform shadow-2xl flex flex-col">
         <!-- Drawer Header -->
         <div class="p-4 border-b border-rose-100 flex items-center justify-between bg-rose-50/50">

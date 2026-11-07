@@ -50,8 +50,8 @@
             <div class="lg:col-span-5 relative">
                 <div class="relative mx-auto max-w-md lg:max-w-none">
                     <!-- Decorative back glow -->
-                    <div class="absolute -top-10 -left-10 w-72 h-72 bg-blush-200 rounded-full blur-3xl opacity-50"></div>
-                    <div class="absolute -bottom-10 -right-10 w-72 h-72 bg-amber-100 rounded-full blur-3xl opacity-50"></div>
+                    <div class="absolute -top-10 -left-10 w-72 h-72 bg-blush-200 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+                    <div class="absolute -bottom-10 -right-10 w-72 h-72 bg-amber-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
 
                     <!-- Main Hero Image Frame -->
                     <div class="relative z-10 rounded-2xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/5]">
@@ -95,10 +95,10 @@
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {% for cat in categories %}
-            <a href="/shop/{{ cat.slug }}" class="group relative rounded-xl overflow-hidden aspect-[3/4] shadow-md hover:shadow-xl transition border border-rose-100 bg-gray-50 flex flex-col justify-end p-5">
-                <img src="{{ cat.image_url }}" alt="{{ cat.name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                <div class="relative z-10 text-white">
+            <a href="/shop/{{ cat.slug }}" class="group relative rounded-xl overflow-hidden aspect-[3/4] shadow-md hover:shadow-xl transition border border-rose-100 bg-gray-50 flex flex-col justify-end p-5 cursor-pointer block z-10">
+                <img src="{{ cat.image_url }}" alt="{{ cat.name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition duration-700 pointer-events-none">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                <div class="relative z-10 text-white pointer-events-none">
                     <h3 class="font-serif text-lg sm:text-xl font-bold group-hover:text-gold-light transition">{{ cat.name }}</h3>
                     <p class="text-xs text-gray-300 mt-1 line-clamp-1">{{ cat.description }}</p>
                     <span class="inline-flex items-center text-xs font-semibold text-gold-light mt-2 group-hover:translate-x-1 transition">
